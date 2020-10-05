@@ -1,0 +1,12 @@
+
+//////////////////////
+/// Lesson 2 Notes ///
+//////////////////////
+
+Giving He Physics
+- Add Mesh Collider to both objects
+  > Check convex
+- Add Rigidbody to He
+
+Preventing rotation
+- Lock all rotation under Rigidbody
