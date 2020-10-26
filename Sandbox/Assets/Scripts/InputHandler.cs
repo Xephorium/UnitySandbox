@@ -1,66 +1,54 @@
 using UnityEngine;
 using NaughtyAttributes;
 
-namespace VHS
-{    
-    public class InputHandler : MonoBehaviour
-    {
-        #region Data
-            [Space,Header("Input Data")]
-            [SerializeField] private CameraInputData cameraInputData = null;
-            [SerializeField] private MovementInputData movementInputData = null;
-            // [SerializeField] private InteractionInputData interactionInputData = null;
-        #endregion
 
-        #region BuiltIn Methods
-            void Start()
-            {
-                cameraInputData.ResetInput();
-                movementInputData.ResetInput();
-                // interactionInputData.ResetInput();
-            }
+public class InputHandler : MonoBehaviour {
 
-            void Update()
-            {
-                GetCameraInput();
-                GetMovementInputData();
-                // GetInteractionInputData();
-            }
-        #endregion
 
-        #region Custom Methods
-            // void GetInteractionInputData()
-            // {
-            //     interactionInputData.InteractedClicked = Input.GetKeyDown(KeyCode.E);
-            //     interactionInputData.InteractedReleased = Input.GetKeyUp(KeyCode.E);
-            // }
+    /*--- Variables ---*/
 
-            void GetCameraInput()
-            {
-                cameraInputData.InputVectorX = Input.GetAxis("Mouse X");
-                cameraInputData.InputVectorY = Input.GetAxis("Mouse Y");
+    [Space,Header("Input Data")]
+    [SerializeField] private LookInputState lookInputState = null;
+    [SerializeField] private MoveInputState moveInputState = null;
 
-                cameraInputData.ZoomClicked = Input.GetMouseButtonDown(1);
-                cameraInputData.ZoomReleased = Input.GetMouseButtonUp(1);
-            }
 
-            void GetMovementInputData()
-            {
-                movementInputData.InputVectorX = Input.GetAxisRaw("Horizontal");
-                movementInputData.InputVectorY = Input.GetAxisRaw("Vertical");
+    /*--- Lifecycle Methods---*/
 
-                movementInputData.RunClicked = Input.GetKeyDown(KeyCode.LeftShift);
-                movementInputData.RunReleased = Input.GetKeyUp(KeyCode.LeftShift);
+    void Start() {
+        lookInputState.resetInput();
+        moveInputState.resetInput();
+    }
 
-                if(movementInputData.RunClicked)
-                    movementInputData.IsRunning = true;
+    void Update() {
+        updateLookInputState();
+        updateMoveInputState();
+    }
 
-                if(movementInputData.RunReleased)
-                    movementInputData.IsRunning = false;
 
-                movementInputData.JumpClicked = Input.GetKeyDown(KeyCode.Space);
-                movementInputData.CrouchClicked = Input.GetKeyDown(KeyCode.LeftControl);
-            }
-        #endregion
+    /*--- Private Methods ---*/
+
+    void updateLookInputState() {
+        lookInputState.inputVector.x = Input.GetAxis("Mouse X");
+        lookInputState.inputVector.y = Input.GetAxis("Mouse Y");
+
+        lookInputState.isZoomClicked = Input.GetMouseButtonDown(1);
+        lookInputState.isZoomReleased = Input.GetMouseButtonUp(1);
+    }
+
+    void updateMoveInputState() {
+        moveInputState.inputVector.x = Input.GetAxisRaw("Horizontal");
+        moveInputState.inputVector.y = Input.GetAxisRaw("Vertical");
+
+        moveInputState.isRunClicked = Input.GetKeyDown(KeyCode.LeftShift);
+        moveInputState.isRunReleased = Input.GetKeyUp(KeyCode.LeftShift);
+
+        if(moveInputState.isRunClicked)
+            moveInputState.isRunning = true;
+
+        if(moveInputState.isRunReleased)
+            moveInputState.isRunning = false;
+
+        moveInputState.isJumpClicked = Input.GetKeyDown(KeyCode.Space);
+        moveInputState.isCrouchClicked = Input.GetKeyDown(KeyCode.LeftControl);
     }
 }

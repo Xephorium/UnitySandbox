@@ -1,11 +1,9 @@
 ﻿using UnityEngine;
 
-namespace  VHS
-{    
     public class HeadBob
     {
         #region Variables
-            HeadBobData m_data;
+            HeadBobConfig m_data;
 
             float m_xScroll;
             float m_yScroll;
@@ -26,12 +24,12 @@ namespace  VHS
         #endregion
 
         #region Custom Methods
-            public HeadBob(HeadBobData _data,float _moveBackwardsMultiplier,float _moveSideMultiplier)
+            public HeadBob(HeadBobConfig _data,float _moveBackwardsMultiplier,float _moveSideMultiplier)
             {
                 m_data = _data;
 
-                m_data.MoveBackwardsFrequencyMultiplier = _moveBackwardsMultiplier;
-                m_data.MoveSideFrequencyMultiplier = _moveSideMultiplier;
+                m_data.backwardsFrequencyMultiplier = _moveBackwardsMultiplier;
+                m_data.sidewaysFrequencyMultiplier = _moveSideMultiplier;
 
                 m_xScroll = 0f;
                 m_yScroll = 0f;
@@ -54,8 +52,8 @@ namespace  VHS
                 _frequencyMultiplier = _running ? m_data.runFrequencyMultiplier : 1f;
                 _frequencyMultiplier = _crouching ? m_data.crouchFrequencyMultiplier : _frequencyMultiplier;
 
-                _additionalMultiplier = _input.y == -1 ? m_data.MoveBackwardsFrequencyMultiplier : 1f;
-                _additionalMultiplier = _input.x != 0 & _input.y == 0 ? m_data.MoveSideFrequencyMultiplier : _additionalMultiplier;
+                _additionalMultiplier = _input.y == -1 ? m_data.backwardsFrequencyMultiplier : 1f;
+                _additionalMultiplier = _input.x != 0 & _input.y == 0 ? m_data.sidewaysFrequencyMultiplier : _additionalMultiplier;
 
 
                 m_xScroll += Time.deltaTime * m_data.xFrequency * _frequencyMultiplier ; // you can also multiply this by _additionalMultiplier but it looks unnatural a bit;
@@ -82,4 +80,3 @@ namespace  VHS
             }
         #endregion
     }
-}

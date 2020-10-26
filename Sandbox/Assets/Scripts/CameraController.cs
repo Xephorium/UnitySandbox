@@ -1,122 +1,107 @@
 ﻿using NaughtyAttributes;
 using UnityEngine;
 
-namespace VHS
-{    
-    public class CameraController : MonoBehaviour
-    {
-        #region Variables
-            #region Data
-                [Space,Header("Data")]
-                [SerializeField] private CameraInputData camInputData = null;
+public class CameraController : MonoBehaviour {
+	
+	#region Variables
+	#region Data
+	[Space,Header("Data")]
+	[SerializeField] private LookInputState lookInputState = null;
 
-                [Space,Header("Custom Classes")]
-                [SerializeField] private CameraZoom cameraZoom = null;
-                [SerializeField] private CameraSwaying cameraSway = null;
+	[Space,Header("Custom Classes")]
+	[SerializeField] private CameraZoom cameraZoom = null;
+	[SerializeField] private CameraSwaying cameraSway = null;
 
-            #endregion
+	#endregion
 
-            #region Settings
-                [Space,Header("Look Settings")]
-                [SerializeField] private Vector2 sensitivity = Vector2.zero;
-                [SerializeField] private Vector2 smoothAmount = Vector2.zero;
-                [SerializeField] [MinMaxSlider(-90f,90f)] private Vector2 lookAngleMinMax = Vector2.zero;
-            #endregion
+	#region Settings
+	[Space,Header("Look Settings")]
+	[SerializeField] private Vector2 sensitivity = Vector2.zero;
+	[SerializeField] private Vector2 smoothAmount = Vector2.zero;
+	[SerializeField][MinMaxSlider(-90f,90f)] private Vector2 lookAngleMinMax = Vector2.zero;
+	#endregion
 
-            #region Private
-               private float m_yaw;
-               private float m_pitch;
+	#region Private
+	private float m_yaw;
+	private float m_pitch;
 
-               private float m_desiredYaw;
-               private float m_desiredPitch;
+	private float m_desiredYaw;
+	private float m_desiredPitch;
 
-                #region Components                    
-                    private Transform m_pitchTranform;
-                    private Camera m_cam;
-                #endregion
-            #endregion
-            
-        #endregion
+	#region Components
+	private Transform m_pitchTranform;
+	private Camera m_cam;
+	#endregion
+	#endregion
 
-        #region BuiltIn Methods  
-            void Awake()
-            {
-                GetComponents();
-                InitValues();
-                InitComponents();
-                ChangeCursorState();
-            }
+	#endregion
 
-            void LateUpdate()
-            {
-                CalculateRotation();
-                SmoothRotation();
-                ApplyRotation();
-                HandleZoom();
-            }
-        #endregion
+	#region BuiltIn Methods
+	void Awake() {
+		GetComponents();
+		InitValues();
+		InitComponents();
+		ChangeCursorState();
+	}
 
-        #region Custom Methods
-            void GetComponents()
-            {
-                m_pitchTranform = transform.GetChild(0).transform;
-                m_cam = GetComponentInChildren<Camera>();
-            }
+	void LateUpdate() {
+		CalculateRotation();
+		SmoothRotation();
+		ApplyRotation();
+		HandleZoom();
+	}
+	#endregion
 
-            void InitValues()
-            {
-                m_yaw = transform.eulerAngles.y;
-                m_desiredYaw = m_yaw;
-            }
+	#region Custom Methods
+	void GetComponents() {
+		m_pitchTranform = transform.GetChild(0).transform;
+		m_cam = GetComponentInChildren<Camera>();
+	}
 
-            void InitComponents()
-            {
-                cameraZoom.Init(m_cam, camInputData);
-                cameraSway.Init(m_cam.transform);
-            }
+	void InitValues() {
+		m_yaw = transform.eulerAngles.y;
+		m_desiredYaw = m_yaw;
+	}
 
-            void CalculateRotation()
-            {
-                m_desiredYaw += camInputData.InputVector.x * sensitivity.x * Time.deltaTime;
-                m_desiredPitch -= camInputData.InputVector.y * sensitivity.y * Time.deltaTime;
+	void InitComponents() {
+		cameraZoom.Init(m_cam, lookInputState);
+		cameraSway.Init(m_cam.transform);
+	}
 
-                m_desiredPitch = Mathf.Clamp( m_desiredPitch, lookAngleMinMax.x, lookAngleMinMax.y);
-            }
+	void CalculateRotation() {
+		m_desiredYaw += lookInputState.inputVector.x * sensitivity.x * Time.deltaTime;
+		m_desiredPitch -= lookInputState.inputVector.y * sensitivity.y * Time.deltaTime;
 
-            void SmoothRotation()
-            {
-                m_yaw = m_desiredYaw; // Mathf.Lerp(m_yaw, m_desiredYaw, smoothAmount.x * Time.deltaTime);
-                m_pitch = m_desiredPitch; // Mathf.Lerp(m_pitch, m_desiredPitch, smoothAmount.y * Time.deltaTime);
-            }
+		m_desiredPitch = Mathf.Clamp( m_desiredPitch, lookAngleMinMax.x, lookAngleMinMax.y);
+	}
 
-            void ApplyRotation()
-            {
-                transform.eulerAngles = new Vector3(0f, m_yaw, 0f);
-                m_pitchTranform.localEulerAngles = new Vector3(m_pitch, 0f, 0f);
-            }
+	void SmoothRotation() {
+		m_yaw = m_desiredYaw; // Mathf.Lerp(m_yaw, m_desiredYaw, smoothAmount.x * Time.deltaTime);
+		m_pitch = m_desiredPitch; // Mathf.Lerp(m_pitch, m_desiredPitch, smoothAmount.y * Time.deltaTime);
+	}
 
-            public void HandleSway(Vector3 _inputVector,float _rawXInput)
-            {
-                cameraSway.SwayPlayer(_inputVector,_rawXInput);
-            }
+	void ApplyRotation() {
+		transform.eulerAngles = new Vector3(0f, m_yaw, 0f);
+		m_pitchTranform.localEulerAngles = new Vector3(m_pitch, 0f, 0f);
+	}
 
-            void HandleZoom()
-            {
-                if(camInputData.ZoomClicked || camInputData.ZoomReleased)
-                    cameraZoom.ChangeFOV(this);
+	public void HandleSway(Vector3 _inputVector, float _rawXInput) {
+		cameraSway.SwayPlayer(_inputVector,_rawXInput);
+	}
 
-            }
+	void HandleZoom() {
+		if(lookInputState.isZoomClicked || lookInputState.isZoomReleased)
+			cameraZoom.ChangeFOV(this);
 
-            public void ChangeRunFOV(bool _returning)
-            {
-                cameraZoom.ChangeRunFOV(_returning,this);
-            }
+	}
 
-            void ChangeCursorState()
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-            }
-        #endregion
-    }
+	public void ChangeRunFOV(bool _returning) {
+		cameraZoom.ChangeRunFOV(_returning,this);
+	}
+
+	void ChangeCursorState() {
+		Cursor.lockState = CursorLockMode.Locked;
+		Cursor.visible = false;
+	}
+	#endregion
 }
