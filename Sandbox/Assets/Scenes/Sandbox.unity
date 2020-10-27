@@ -486,6 +486,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 585e53a262e2a13488dda1002e919710,
         type: 2}
+    - target: {fileID: 1741897622118887495, guid: e9a89d2f481d2314e98a17027fb55982,
+        type: 3}
+      propertyPath: firstPersonViewConfig
+      value: 
+      objectReference: {fileID: 11400000, guid: 093345c03bf9e8c4cbb8f1251ead678c,
+        type: 2}
     - target: {fileID: 2951666076673828352, guid: e9a89d2f481d2314e98a17027fb55982,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -779,6 +785,24 @@ PrefabInstance:
       propertyPath: lookInputState
       value: 
       objectReference: {fileID: 11400000, guid: f699fc80be5580a48afb232be73d6cb9,
+        type: 2}
+    - target: {fileID: 4376316924112240278, guid: e9a89d2f481d2314e98a17027fb55982,
+        type: 3}
+      propertyPath: cameraZoom.zoomConfig
+      value: 
+      objectReference: {fileID: 11400000, guid: 66ba5f9bce69ad441ae0c64ca331d815,
+        type: 2}
+    - target: {fileID: 4376316924112240278, guid: e9a89d2f481d2314e98a17027fb55982,
+        type: 3}
+      propertyPath: cameraZoom.lookInputState
+      value: 
+      objectReference: {fileID: 11400000, guid: f699fc80be5580a48afb232be73d6cb9,
+        type: 2}
+    - target: {fileID: 4376316924112240278, guid: e9a89d2f481d2314e98a17027fb55982,
+        type: 3}
+      propertyPath: firstPersonViewConfig
+      value: 
+      objectReference: {fileID: 11400000, guid: 093345c03bf9e8c4cbb8f1251ead678c,
         type: 2}
     - target: {fileID: 8927718228046044346, guid: e9a89d2f481d2314e98a17027fb55982,
         type: 3}
