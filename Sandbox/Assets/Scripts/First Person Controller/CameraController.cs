@@ -18,7 +18,7 @@ public class CameraController : MonoBehaviour {
 	private float desiredYaw;
 	private float desiredPitch;
 	private Transform pitchTranform;
-	private Camera camera;
+	private Camera firstPersonCamera;
 
 
 	/*--- Lifecycle Methods ---*/
@@ -27,6 +27,7 @@ public class CameraController : MonoBehaviour {
 		getComponents();
 		initializeValues();
 		initializeComponents();
+		initializeCamera();
 		lockCursor();
 	}
 
@@ -40,11 +41,11 @@ public class CameraController : MonoBehaviour {
 
 	/*--- Public Methods ---*/
 
-	public void HandleSway(Vector3 inputVector, float inputRawX) {
+	public void updateCameraSway(Vector3 inputVector, float inputRawX) {
 		swayManager.updateSway(inputVector, inputRawX);
 	}
 
-	public void ChangeRunFOV(bool isReturningToWalk) {
+	public void updateRunFov(bool isReturningToWalk) {
 		zoomManager.updateRunFov(isReturningToWalk, this);
 	}
 
@@ -53,7 +54,7 @@ public class CameraController : MonoBehaviour {
 
 	void getComponents() {
 		pitchTranform = transform.GetChild(0).transform;
-		camera = GetComponentInChildren<Camera>();
+		firstPersonCamera = GetComponentInChildren<Camera>();
 	}
 
 	void initializeValues() {
@@ -62,8 +63,12 @@ public class CameraController : MonoBehaviour {
 	}
 
 	void initializeComponents() {
-		zoomManager.initialize(camera, lookInputState, firstPersonViewConfig);
-		swayManager.initialize(camera.transform, firstPersonViewConfig);
+		zoomManager.initialize(firstPersonCamera, lookInputState, firstPersonViewConfig);
+		swayManager.initialize(firstPersonCamera.transform, firstPersonViewConfig);
+	}
+
+	void initializeCamera() {
+		firstPersonCamera.fieldOfView = firstPersonViewConfig.defaultFOV;
 	}
 
 	void calculateRotation() {

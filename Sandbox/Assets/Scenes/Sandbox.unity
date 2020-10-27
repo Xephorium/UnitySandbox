@@ -492,6 +492,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 093345c03bf9e8c4cbb8f1251ead678c,
         type: 2}
+    - target: {fileID: 1741897622118887495, guid: e9a89d2f481d2314e98a17027fb55982,
+        type: 3}
+      propertyPath: firstPersonMovementConfig
+      value: 
+      objectReference: {fileID: 11400000, guid: af62faf44b748ec4ab14ec35405ebbec,
+        type: 2}
     - target: {fileID: 2951666076673828352, guid: e9a89d2f481d2314e98a17027fb55982,
         type: 3}
       propertyPath: m_Materials.Array.data[0]

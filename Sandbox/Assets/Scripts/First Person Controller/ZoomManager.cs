@@ -26,8 +26,6 @@ public class ZoomManager {
 		camera = cam;
 		lookInputState = state;
 		firstPersonViewConfig = config;
-
-		camera.fieldOfView = firstPersonViewConfig.defaultFOV; // TODO - Move
 	}
 
 	public void updateZoomFov(MonoBehaviour monoBehavior) {

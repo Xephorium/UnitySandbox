@@ -4,82 +4,15 @@ using NaughtyAttributes;
 
 [RequireComponent(typeof(CharacterController))]
 public class FirstPersonController : MonoBehaviour {
-    #region Variables
-    #region Private Serialized
-    #region Data
+
+
+    /*--- Variables ---*/
+
     [Space, Header("Data")]
     [SerializeField] private MoveInputState moveInputState = null;
     [SerializeField] private FirstPersonViewConfig firstPersonViewConfig = null;
+    [SerializeField] private FirstPersonMovementConfig firstPersonMovementConfig = null;
 
-    #endregion
-
-    #region Locomotion
-    [Space, Header("Locomotion Settings")]
-    [SerializeField] private float crouchSpeed = 1f;
-    [SerializeField] private float walkSpeed = 2f;
-    [SerializeField] private float runSpeed = 3f;
-    [SerializeField] private float jumpSpeed = 5f;
-    [SerializeField] private float moveBackwardsSpeedPercent = 0.5f;
-    [SerializeField] private float moveSideSpeedPercent = 0.75f;
-    #endregion
-
-    #region Run Settings
-    [Space, Header("Run Settings")]
-    [SerializeField] private float canRunThreshold = 0.8f;
-    [SerializeField] private AnimationCurve runTransitionCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
-    #endregion
-
-    #region Crouch Settings
-    [Space, Header("Crouch Settings")]
-    [SerializeField] private float crouchPercent = 0.6f;
-    [SerializeField] private float crouchTransitionDuration = 1f;
-    [SerializeField] private AnimationCurve crouchTransitionCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
-    #endregion
-
-    #region Landing Settings
-    [Space, Header("Landing Settings")]
-    [SerializeField] private float lowLandAmount = 0.1f;
-    [SerializeField] private float highLandAmount = 0.6f;
-    [SerializeField] private float landTimer = 0.5f;
-    [SerializeField] private float landDuration = 1f;
-    [SerializeField] private AnimationCurve landCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
-    #endregion
-
-    #region Gravity
-    [Space, Header("Gravity Settings")]
-    [SerializeField] private float gravityMultiplier = 2.5f;
-    [SerializeField] private float stickToGroundForce = 5f;
-
-    [SerializeField] private LayerMask groundLayer = ~0;
-    [SerializeField] private float rayLength = 0.1f;
-    [SerializeField] private float raySphereRadius = 0.1f;
-    #endregion
-
-    #region Wall Settings
-    [Space, Header("Check Wall Settings")]
-    [SerializeField] private LayerMask obstacleLayers = ~0;
-    [SerializeField] private float rayObstacleLength = 0.1f;
-    [SerializeField] private float rayObstacleSphereRadius = 0.1f;
-
-    #endregion
-
-    #region Smooth Settings
-    [Space, Header("Smooth Settings")]
-    [Range(1f, 100f)][SerializeField] private float smoothRotateSpeed = 5f;
-    [Range(1f, 100f)][SerializeField] private float smoothInputSpeed = 5f;
-    [Range(1f, 100f)][SerializeField] private float smoothVelocitySpeed = 5f;
-    [Range(1f, 100f)][SerializeField] private float smoothFinalDirectionSpeed = 5f;
-    [Range(1f, 100f)][SerializeField] private float smoothHeadBobSpeed = 5f;
-
-    [Space]
-    [SerializeField] private bool experimental = false;
-    [Tooltip("If set to very high it will stop player immediately after releasing input, otherwise it just another smoothing to our movement to make our player not move fast immediately and not stop immediately")]
-    [ShowIf("experimental")][Range(1f, 100f)][SerializeField] private float smoothInputMagnitudeSpeed = 5f;
-
-    #endregion
-    #endregion
-    #region Private Non-Serialized
-    #region Components / Custom Classes / Caches
     private CharacterController m_characterController;
     private Transform m_yawTransform;
     private Transform m_camTransform;
@@ -89,54 +22,40 @@ public class FirstPersonController : MonoBehaviour {
     private RaycastHit m_hitInfo;
     private IEnumerator m_CrouchRoutine;
     private IEnumerator m_LandRoutine;
-    #endregion
 
-    #region Debug
-    [Space]
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private Vector2 m_inputVector;
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private Vector2 m_smoothInputVector;
+    [SerializeField] [ShowIf("NeverShow")] private Vector2 m_inputVector;
+    [SerializeField] [ShowIf("NeverShow")] private Vector2 m_smoothInputVector;
 
-    [Space]
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private Vector3 m_finalMoveDir;
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private Vector3 m_smoothFinalMoveDir;
-    [Space]
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private Vector3 m_finalMoveVector;
+    [SerializeField] [ShowIf("NeverShow")] private Vector3 m_finalMoveDir;
+    [SerializeField] [ShowIf("NeverShow")] private Vector3 m_smoothFinalMoveDir;
+    [SerializeField] [ShowIf("NeverShow")] private Vector3 m_finalMoveVector;
 
-    [Space]
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private float m_currentSpeed;
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private float m_smoothCurrentSpeed;
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private float m_finalSmoothCurrentSpeed;
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private float m_walkRunSpeedDifference;
+    [SerializeField] [ShowIf("NeverShow")] private float m_currentSpeed;
+    [SerializeField] [ShowIf("NeverShow")] private float m_smoothCurrentSpeed;
+    [SerializeField] [ShowIf("NeverShow")] private float m_finalSmoothCurrentSpeed;
+    [SerializeField] [ShowIf("NeverShow")] private float m_walkRunSpeedDifference;
 
-    [Space]
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private float m_finalRayLength;
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private bool m_hitWall;
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private bool m_isGrounded;
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private bool m_previouslyGrounded;
+    [SerializeField] [ShowIf("NeverShow")] private float m_finalRayLength;
+    [SerializeField] [ShowIf("NeverShow")] private bool m_hitWall;
+    [SerializeField] [ShowIf("NeverShow")] private bool m_isGrounded;
+    [SerializeField] [ShowIf("NeverShow")] private bool m_previouslyGrounded;
 
-    [Space]
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private float m_initHeight;
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private float m_crouchHeight;
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private Vector3 m_initCenter;
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private Vector3 m_crouchCenter;
-    [Space]
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private float m_initCamHeight;
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private float m_crouchCamHeight;
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private float m_crouchStandHeightDifference;
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private bool m_duringCrouchAnimation;
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private bool m_duringRunAnimation;
-    [Space]
-    [BoxGroup("DEBUG")][SerializeField][ReadOnly] private float m_inAirTimer;
+    [SerializeField] [ShowIf("NeverShow")] private float m_initHeight;
+    [SerializeField] [ShowIf("NeverShow")] private float m_crouchHeight;
+    [SerializeField] [ShowIf("NeverShow")] private Vector3 m_initCenter;
+    [SerializeField] [ShowIf("NeverShow")] private Vector3 m_crouchCenter;
 
-    [Space]
-    [BoxGroup("DEBUG")][ShowIf("experimental")][SerializeField][ReadOnly] private float m_inputVectorMagnitude;
-    [BoxGroup("DEBUG")][ShowIf("experimental")][SerializeField][ReadOnly] private float m_smoothInputVectorMagnitude;
-    #endregion
-    #endregion
+    [SerializeField] [ShowIf("NeverShow")] private float m_initCamHeight;
+    [SerializeField] [ShowIf("NeverShow")] private float m_crouchCamHeight;
+    [SerializeField] [ShowIf("NeverShow")] private float m_crouchStandHeightDifference;
+    [SerializeField] [ShowIf("NeverShow")] private bool m_duringCrouchAnimation;
+    [SerializeField] [ShowIf("NeverShow")] private bool m_duringRunAnimation;
 
-    #endregion
+    [SerializeField] [ShowIf("NeverShow")] private float m_inAirTimer;
 
-    #region BuiltIn Methods
+
+    /*--- Lifecycle Methods ---*/
+
     protected virtual void Start() {
         GetComponents();
         InitVariables();
@@ -155,9 +74,6 @@ public class FirstPersonController : MonoBehaviour {
             SmoothInput();
             SmoothSpeed();
             SmoothDir();
-
-            if(experimental)
-                SmoothInputMagnitude();
 
             // Calculate Movement
             CalculateMovementDirection();
@@ -183,21 +99,20 @@ public class FirstPersonController : MonoBehaviour {
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere((transform.position + m_characterController.center) - Vector3.up * m_finalRayLength, raySphereRadius);
+            Gizmos.DrawWireSphere((transform.position + m_characterController.center) - Vector3.up * m_finalRayLength, firstPersonMovementConfig.raySphereRadius);
         }
 
      */
 
-    #endregion
 
-    #region Custom Methods
-    #region Initialize Methods
+    /*--- Setup Methods ---*/
+
     protected virtual void GetComponents() {
         m_characterController = GetComponent<CharacterController>();
         m_cameraController = GetComponentInChildren<CameraController>();
         m_yawTransform = m_cameraController.transform;
         m_camTransform = GetComponentInChildren<Camera>().transform;
-        headBobManager = new HeadBobManager(firstPersonViewConfig, moveBackwardsSpeedPercent, moveSideSpeedPercent);
+        headBobManager = new HeadBobManager(firstPersonViewConfig, firstPersonMovementConfig.moveBackwardsSpeedPercent, firstPersonMovementConfig.moveSideSpeedPercent);
     }
 
     protected virtual void InitVariables() {
@@ -207,7 +122,7 @@ public class FirstPersonController : MonoBehaviour {
         m_initCenter = m_characterController.center;
         m_initHeight = m_characterController.height;
 
-        m_crouchHeight = m_initHeight * crouchPercent;
+        m_crouchHeight = m_initHeight * firstPersonMovementConfig.crouchPercent;
         m_crouchCenter = (m_crouchHeight / 2f + m_characterController.skinWidth) * Vector3.up;
 
         m_crouchStandHeightDifference = m_initHeight - m_crouchHeight;
@@ -216,7 +131,7 @@ public class FirstPersonController : MonoBehaviour {
         m_crouchCamHeight = m_initCamHeight - m_crouchStandHeightDifference;
 
         // Sphere radius not included. If you want it to be included just decrease by sphere radius at the end of this equation
-        m_finalRayLength = rayLength + m_characterController.center.y;
+        m_finalRayLength = firstPersonMovementConfig.rayLength + m_characterController.center.y;
 
         m_isGrounded = true;
         m_previouslyGrounded = true;
@@ -224,23 +139,24 @@ public class FirstPersonController : MonoBehaviour {
         m_inAirTimer = 0f;
         headBobManager.currentBaseHeight = m_initCamHeight;
 
-        m_walkRunSpeedDifference = runSpeed - walkSpeed;
+        m_walkRunSpeedDifference = firstPersonMovementConfig.runSpeed - firstPersonMovementConfig.walkSpeed;
     }
-    #endregion
 
-    #region Smoothing Methods
+
+    /*--- Smoothing Methods ---*/
+
     protected virtual void SmoothInput() {
         m_inputVector = moveInputState.inputVector.normalized;
-        m_smoothInputVector = m_inputVector;     //Vector2.Lerp(m_smoothInputVector,m_inputVector,Time.deltaTime * smoothInputSpeed);
+        m_smoothInputVector = m_inputVector;     //Vector2.Lerp(m_smoothInputVector,m_inputVector,Time.deltaTime * firstPersonMovementConfig.smoothInputSpeed);
         //Debug.DrawRay(transform.position, new Vector3(m_smoothInputVector.x,0f,m_smoothInputVector.y), Color.green);
     }
 
     protected virtual void SmoothSpeed() {
-        m_smoothCurrentSpeed = Mathf.Lerp(m_smoothCurrentSpeed, m_currentSpeed, Time.deltaTime * smoothVelocitySpeed);
+        m_smoothCurrentSpeed = Mathf.Lerp(m_smoothCurrentSpeed, m_currentSpeed, Time.deltaTime * firstPersonMovementConfig.smoothVelocitySpeed);
 
         if(moveInputState.isRunning && CanRun()) {
-            float _walkRunPercent = Mathf.InverseLerp(walkSpeed, runSpeed, m_smoothCurrentSpeed);
-            m_finalSmoothCurrentSpeed = runTransitionCurve.Evaluate(_walkRunPercent) * m_walkRunSpeedDifference + walkSpeed;
+            float _walkRunPercent = Mathf.InverseLerp(firstPersonMovementConfig.walkSpeed, firstPersonMovementConfig.runSpeed, m_smoothCurrentSpeed);
+            m_finalSmoothCurrentSpeed = firstPersonMovementConfig.runTransitionCurve.Evaluate(_walkRunPercent) * m_walkRunSpeedDifference + firstPersonMovementConfig.walkSpeed;
         }
         else
         {
@@ -250,21 +166,17 @@ public class FirstPersonController : MonoBehaviour {
 
     protected virtual void SmoothDir() {
 
-        m_smoothFinalMoveDir = Vector3.Lerp(m_smoothFinalMoveDir, m_finalMoveDir, Time.deltaTime * smoothFinalDirectionSpeed);
+        m_smoothFinalMoveDir = Vector3.Lerp(m_smoothFinalMoveDir, m_finalMoveDir, Time.deltaTime * firstPersonMovementConfig.smoothFinalDirectionSpeed);
         Debug.DrawRay(transform.position, m_smoothFinalMoveDir, Color.yellow);
     }
 
-    protected virtual void SmoothInputMagnitude() {
-        m_inputVectorMagnitude = m_inputVector.magnitude;
-        m_smoothInputVectorMagnitude = Mathf.Lerp(m_smoothInputVectorMagnitude, m_inputVectorMagnitude, Time.deltaTime * smoothInputMagnitudeSpeed);
-    }
-    #endregion
 
-    #region Locomotion Calculation Methods
+    /*--- Movement Calculation Methods ---*/
+
     protected virtual void CheckIfGrounded() {
         Vector3 _origin = transform.position + m_characterController.center;
 
-        bool _hitGround = Physics.SphereCast(_origin, raySphereRadius, Vector3.down, out m_hitInfo, m_finalRayLength, groundLayer);
+        bool _hitGround = Physics.SphereCast(_origin, firstPersonMovementConfig.raySphereRadius, Vector3.down, out m_hitInfo, m_finalRayLength, firstPersonMovementConfig.groundLayer);
         Debug.DrawRay(_origin, Vector3.down * (m_finalRayLength), Color.red);
 
         m_isGrounded = _hitGround ? true : false;
@@ -278,8 +190,8 @@ public class FirstPersonController : MonoBehaviour {
         bool _hitWall = false;
 
         if(moveInputState.hasInput && m_finalMoveDir.sqrMagnitude > 0)
-            _hitWall = Physics.SphereCast(_origin, rayObstacleSphereRadius, m_finalMoveDir, out _wallInfo, rayObstacleLength, obstacleLayers);
-        Debug.DrawRay(_origin, m_finalMoveDir * rayObstacleLength, Color.blue);
+            _hitWall = Physics.SphereCast(_origin, firstPersonMovementConfig.rayObstacleSphereRadius, m_finalMoveDir, out _wallInfo, firstPersonMovementConfig.rayObstacleLength, firstPersonMovementConfig.obstacleLayers);
+        Debug.DrawRay(_origin, m_finalMoveDir * firstPersonMovementConfig.rayObstacleLength, Color.blue);
 
         m_hitWall = _hitWall ? true : false;
     }
@@ -288,7 +200,7 @@ public class FirstPersonController : MonoBehaviour {
         Vector3 _origin = transform.position;
         RaycastHit _roofInfo;
 
-        bool _hitRoof = Physics.SphereCast(_origin, raySphereRadius, Vector3.up, out _roofInfo, m_initHeight);
+        bool _hitRoof = Physics.SphereCast(_origin, firstPersonMovementConfig.raySphereRadius, Vector3.up, out _roofInfo, m_initHeight);
 
         return false;     // _hitRoof;
     }
@@ -300,7 +212,7 @@ public class FirstPersonController : MonoBehaviour {
             _normalizedDir = m_smoothFinalMoveDir.normalized;
 
         float _dot = Vector3.Dot(transform.forward, _normalizedDir);
-        return _dot >= canRunThreshold && !moveInputState.isCrouching ? true : false;
+        return _dot >= firstPersonMovementConfig.canRunThreshold && !moveInputState.isCrouching ? true : false;
     }
 
     protected virtual void CalculateMovementDirection() {
@@ -322,15 +234,15 @@ public class FirstPersonController : MonoBehaviour {
     }
 
     protected virtual void CalculateSpeed() {
-        m_currentSpeed = moveInputState.isRunning && CanRun() ? runSpeed : walkSpeed;
-        m_currentSpeed = moveInputState.isCrouching ? crouchSpeed : m_currentSpeed;
+        m_currentSpeed = moveInputState.isRunning && CanRun() ? firstPersonMovementConfig.runSpeed : firstPersonMovementConfig.walkSpeed;
+        m_currentSpeed = moveInputState.isCrouching ? firstPersonMovementConfig.crouchSpeed : m_currentSpeed;
         m_currentSpeed = !moveInputState.hasInput ? 0f : m_currentSpeed;
-        m_currentSpeed = moveInputState.inputVector.y == -1 ? m_currentSpeed * moveBackwardsSpeedPercent : m_currentSpeed;
-        m_currentSpeed = moveInputState.inputVector.x != 0 && moveInputState.inputVector.y ==  0 ? m_currentSpeed * moveSideSpeedPercent :  m_currentSpeed;
+        m_currentSpeed = moveInputState.inputVector.y == -1 ? m_currentSpeed * firstPersonMovementConfig.moveBackwardsSpeedPercent : m_currentSpeed;
+        m_currentSpeed = moveInputState.inputVector.x != 0 && moveInputState.inputVector.y ==  0 ? m_currentSpeed * firstPersonMovementConfig.moveSideSpeedPercent :  m_currentSpeed;
     }
 
     protected virtual void CalculateFinalMovement() {
-        float _smoothInputVectorMagnitude = experimental ? m_smoothInputVectorMagnitude : 1f;
+        float _smoothInputVectorMagnitude = 1f;
         Vector3 _finalVector = m_smoothFinalMoveDir * m_finalSmoothCurrentSpeed * _smoothInputVectorMagnitude;
 
         // We have to assign individually in order to make our character jump properly because before it was overwriting Y value and that's why it was jerky now we are adding to Y value and it's working
@@ -340,9 +252,10 @@ public class FirstPersonController : MonoBehaviour {
         if(m_characterController.isGrounded)     // Thanks to this check we are not applying extra y velocity when in air so jump will be consistent
             m_finalMoveVector.y += _finalVector.y;  //so this makes our player go in forward dir using slope normal but when jumping this is making it go higher so this is weird
     }
-    #endregion
 
-    #region Crouching Methods
+
+    /*--- Crouch Methods ---*/
+
     protected virtual void HandleCrouch() {
         if(moveInputState.isCrouchClicked && m_isGrounded)
             InvokeCrouchRoutine();
@@ -368,7 +281,7 @@ public class FirstPersonController : MonoBehaviour {
 
         float _percent = 0f;
         float _smoothPercent = 0f;
-        float _speed = 1f / crouchTransitionDuration;
+        float _speed = 1f / firstPersonMovementConfig.crouchTransitionDuration;
 
         float _currentHeight = m_characterController.height;
         Vector3 _currentCenter = m_characterController.center;
@@ -385,7 +298,7 @@ public class FirstPersonController : MonoBehaviour {
 
         while(_percent < 1f) {
             _percent += Time.deltaTime * _speed;
-            _smoothPercent = crouchTransitionCurve.Evaluate(_percent);
+            _smoothPercent = firstPersonMovementConfig.crouchTransitionCurve.Evaluate(_percent);
 
             m_characterController.height = Mathf.Lerp(_currentHeight, _desiredHeight, _smoothPercent);
             m_characterController.center = Vector3.Lerp(_currentCenter, _desiredCenter, _smoothPercent);
@@ -399,9 +312,9 @@ public class FirstPersonController : MonoBehaviour {
         m_duringCrouchAnimation = false;
     }
 
-    #endregion
 
-    #region Landing Methods
+    /*--- Landing Methods ---*/
+
     protected virtual void HandleLanding() {
         if(!m_previouslyGrounded && m_isGrounded) {
             InvokeLandingRoutine();
@@ -420,16 +333,16 @@ public class FirstPersonController : MonoBehaviour {
         float _percent = 0f;
         float _landAmount = 0f;
 
-        float _speed = 1f / landDuration;
+        float _speed = 1f / firstPersonMovementConfig.landDuration;
 
         Vector3 _localPos = m_yawTransform.localPosition;
         float _initLandHeight = _localPos.y;
 
-        _landAmount = m_inAirTimer > landTimer ? highLandAmount : lowLandAmount;
+        _landAmount = m_inAirTimer > firstPersonMovementConfig.landTimer ? firstPersonMovementConfig.highLandAmount : firstPersonMovementConfig.lowLandAmount;
 
         while(_percent < 1f) {
             _percent += Time.deltaTime * _speed;
-            float _desiredY = landCurve.Evaluate(_percent) * _landAmount;
+            float _desiredY = firstPersonMovementConfig.landCurve.Evaluate(_percent) * _landAmount;
 
             _localPos.y = _initLandHeight + _desiredY;
             m_yawTransform.localPosition = _localPos;
@@ -437,16 +350,16 @@ public class FirstPersonController : MonoBehaviour {
             yield return null;
         }
     }
-    #endregion
 
-    #region Locomotion Apply Methods
+    
+    /*--- Movement Methods ---*/
 
     protected virtual void HandleHeadBob() {
 
         if(moveInputState.hasInput && m_isGrounded  && !m_hitWall) {
             if(!m_duringCrouchAnimation) { // we want to make our head bob only if we are moving and not during crouch routine
                 headBobManager.updateHeadBob(moveInputState.isRunning && CanRun(), moveInputState.isCrouching, moveInputState.inputVector);
-                m_yawTransform.localPosition = Vector3.Lerp(m_yawTransform.localPosition, (Vector3.up * headBobManager.currentBaseHeight) + headBobManager.currentPositionOffset, Time.deltaTime * smoothHeadBobSpeed);
+                m_yawTransform.localPosition = Vector3.Lerp(m_yawTransform.localPosition, (Vector3.up * headBobManager.currentBaseHeight) + headBobManager.currentPositionOffset, Time.deltaTime * firstPersonMovementConfig.smoothHeadBobSpeed);
             }
         }
         else     // if we are not moving or we are not grounded
@@ -456,40 +369,40 @@ public class FirstPersonController : MonoBehaviour {
             }
 
             if(!m_duringCrouchAnimation) // we want to reset our head bob only if we are standing still and not during crouch routine
-                m_yawTransform.localPosition = Vector3.Lerp(m_yawTransform.localPosition, new Vector3(0f, headBobManager.currentBaseHeight, 0f), Time.deltaTime * smoothHeadBobSpeed);
+                m_yawTransform.localPosition = Vector3.Lerp(m_yawTransform.localPosition, new Vector3(0f, headBobManager.currentBaseHeight, 0f), Time.deltaTime * firstPersonMovementConfig.smoothHeadBobSpeed);
         }
 
-        //m_camTransform.localPosition = Vector3.Lerp(m_camTransform.localPosition,headBobManager.FinalOffset,Time.deltaTime * smoothHeadBobSpeed);
+        //m_camTransform.localPosition = Vector3.Lerp(m_camTransform.localPosition,headBobManager.FinalOffset,Time.deltaTime * firstPersonMovementConfig.smoothHeadBobSpeed);
     }
 
     protected virtual void HandleCameraSway() {
-        m_cameraController.HandleSway(m_smoothInputVector, moveInputState.inputVector.x);
+        m_cameraController.updateCameraSway(m_smoothInputVector, moveInputState.inputVector.x);
     }
 
     protected virtual void HandleRunFOV() {
         if(moveInputState.hasInput && m_isGrounded  && !m_hitWall) {
             if(moveInputState.isRunClicked && CanRun()) {
                 m_duringRunAnimation = true;
-                m_cameraController.ChangeRunFOV(false);
+                m_cameraController.updateRunFov(false);
             }
 
             if(moveInputState.isRunning && CanRun() && !m_duringRunAnimation ) {
                 m_duringRunAnimation = true;
-                m_cameraController.ChangeRunFOV(false);
+                m_cameraController.updateRunFov(false);
             }
         }
 
         if(moveInputState.isRunReleased || !moveInputState.hasInput || m_hitWall) {
             if(m_duringRunAnimation) {
                 m_duringRunAnimation = false;
-                m_cameraController.ChangeRunFOV(true);
+                m_cameraController.updateRunFov(true);
             }
         }
     }
     protected virtual void HandleJump() {
         if(moveInputState.isJumpClicked && !moveInputState.isCrouching) {
-            m_finalMoveVector.y += jumpSpeed /* m_currentSpeed */; // we are adding because ex. when we are going on slope we want to keep Y value not overwriting it
-            //m_finalMoveVector.y = jumpSpeed /* m_currentSpeed */; // turns out that when adding to Y it is too much and it doesn't feel correct because jumping on slope is much faster and higher;
+            m_finalMoveVector.y += firstPersonMovementConfig.jumpSpeed /* m_currentSpeed */; // we are adding because ex. when we are going on slope we want to keep Y value not overwriting it
+            //m_finalMoveVector.y = firstPersonMovementConfig.jumpSpeed /* m_currentSpeed */; // turns out that when adding to Y it is too much and it doesn't feel correct because jumping on slope is much faster and higher;
 
             m_previouslyGrounded = true;
             m_isGrounded = false;
@@ -498,14 +411,14 @@ public class FirstPersonController : MonoBehaviour {
     protected virtual void ApplyGravity() {
         if(m_characterController.isGrounded) {   // if we would use our own m_isGrounded it would not work that good, this one is more precise
             m_inAirTimer = 0f;
-            m_finalMoveVector.y = -stickToGroundForce;
+            m_finalMoveVector.y = -firstPersonMovementConfig.stickToGroundForce;
 
             HandleJump();
         }
         else
         {
             m_inAirTimer += Time.deltaTime;
-            m_finalMoveVector += Physics.gravity * gravityMultiplier * Time.deltaTime;
+            m_finalMoveVector += Physics.gravity * firstPersonMovementConfig.gravityMultiplier * Time.deltaTime;
         }
     }
 
@@ -517,8 +430,6 @@ public class FirstPersonController : MonoBehaviour {
         Quaternion _currentRot = transform.rotation;
         Quaternion _desiredRot = m_yawTransform.rotation;
 
-        transform.rotation = Quaternion.Slerp(_currentRot, _desiredRot, Time.deltaTime * smoothRotateSpeed);
+        transform.rotation = Quaternion.Slerp(_currentRot, _desiredRot, Time.deltaTime * firstPersonMovementConfig.smoothRotateSpeed);
     }
-    #endregion
-    #endregion
 }
