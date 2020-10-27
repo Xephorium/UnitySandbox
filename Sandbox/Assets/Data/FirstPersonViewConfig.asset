@@ -18,12 +18,30 @@ MonoBehaviour:
   runFOV: 90
   runCurve:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  runTransitionDuration: 0
-  runReturnTransitionDuration: 0
+  runTransitionDuration: 0.4
+  runReturnTransitionDuration: 0.17
   zoomFOV: 55
   zoomCurve:
     serializedVersion: 2
@@ -153,7 +171,7 @@ MonoBehaviour:
     m_PostInfinity: 1
     m_RotationOrder: 4
   xAmplitude: 0.0375
-  yAmplitude: 0.075
+  yAmplitude: 0.068
   xFrequency: 1.42
   yFrequency: 2.84
   runAmplitudeMultiplier: 1.5
