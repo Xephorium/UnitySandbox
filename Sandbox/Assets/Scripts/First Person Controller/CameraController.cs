@@ -7,7 +7,6 @@ public class CameraController : MonoBehaviour {
 
 	/*--- Variables ---*/
 
-	[Space, Header("Data")]
 	[SerializeField] private LookInputState lookInputState = null;
 	[SerializeField] private FirstPersonViewConfig firstPersonViewConfig = null;
 	[SerializeField][ShowIf("NeverShow")] private ZoomManager zoomManager = null;

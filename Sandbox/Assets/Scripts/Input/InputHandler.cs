@@ -7,7 +7,6 @@ public class InputHandler : MonoBehaviour {
 
     /*--- Variables ---*/
 
-    [Space,Header("Input Data")]
     [SerializeField] private LookInputState lookInputState = null;
     [SerializeField] private MoveInputState moveInputState = null;
 
