@@ -307,6 +307,43 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 298158862}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &427093434 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6580707009249773753, guid: bc127966a8791d047a712828045c82d1,
+    type: 3}
+  m_PrefabInstance: {fileID: 7927740555769617135}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &427093439
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 427093434}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: be2092fa2db71e54d900c461b9f7a6be,
+    type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: Xbox 360 Control Scheme
+  m_DefaultActionMap: FirstPersonCharacter
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!1 &433755582
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,12 +10,29 @@ public class InputHandler : MonoBehaviour {
     [SerializeField] private LookInputState lookInputState = null;
     [SerializeField] private MoveInputState moveInputState = null;
 
+    private InputDriver inputDriver;
+
 
     /*--- Lifecycle Methods---*/
+
+    void Awake() {
+        inputDriver = new InputDriver();
+    }
 
     void Start() {
         lookInputState.resetInput();
         moveInputState.resetInput();
+
+        setupLookCallbacks();
+        setupMoveCallbacks();
+    }
+
+    void OnEnable() {
+        inputDriver.Enable();
+    }
+
+    void OnDisable() {
+        inputDriver.Disable();
     }
 
     void Update() {
@@ -26,28 +43,42 @@ public class InputHandler : MonoBehaviour {
 
     /*--- Private Methods ---*/
 
-    void updateLookInputState() {
-        lookInputState.inputVector.x = Input.GetAxis("Mouse X");
-        lookInputState.inputVector.y = Input.GetAxis("Mouse Y");
-
-        lookInputState.isZoomClicked = Input.GetMouseButtonDown(1);
-        lookInputState.isZoomReleased = Input.GetMouseButtonUp(1);
+    private void setupLookCallbacks() {
+        // inputDriver.FirstPersonCharacter.Zoom.started += _ => { lookInputState.isZoomClicked = true; };
+        // inputDriver.FirstPersonCharacter.Zoom.canceled += _ => { lookInputState.isZoomReleased = true; };
     }
 
-    void updateMoveInputState() {
-        moveInputState.inputVector.x = Input.GetAxisRaw("Horizontal");
-        moveInputState.inputVector.y = Input.GetAxisRaw("Vertical");
+    private void setupMoveCallbacks() {
+        inputDriver.FirstPersonCharacter.Run.started += _ => { moveInputState.isRunning = true; };
+        inputDriver.FirstPersonCharacter.Run.canceled += _ => { moveInputState.isRunning = false; };
+        
+        // inputDriver.FirstPersonCharacter.Crouch.started += _ => { moveInputState.isCrouchClicked = true; };
+        // inputDriver.FirstPersonCharacter.Crouch.canceled += _ => { moveInputState.isCrouchClicked = false; };
+    }
 
-        moveInputState.isRunClicked = Input.GetKeyDown(KeyCode.LeftShift);
-        moveInputState.isRunReleased = Input.GetKeyUp(KeyCode.LeftShift);
+    private void updateLookInputState() {
+        Vector2 stickInput = inputDriver.FirstPersonCharacter.LookStick.ReadValue<Vector2>();
+        Vector2 mouseInput = inputDriver.FirstPersonCharacter.LookMouse.ReadValue<Vector2>();
 
-        if(moveInputState.isRunClicked)
-            moveInputState.isRunning = true;
+        if (stickInput != Vector2.zero) {
 
-        if(moveInputState.isRunReleased)
-            moveInputState.isRunning = false;
+            // Use Stick Input
+            lookInputState.inputVector.x = stickInput.x * 14.5f;
+            lookInputState.inputVector.y = stickInput.y * 9.5f;
 
-        moveInputState.isJumpClicked = Input.GetKeyDown(KeyCode.Space);
-        moveInputState.isCrouchClicked = Input.GetKeyDown(KeyCode.LeftControl);
+        } else {
+
+            // Use Mouse Input
+            lookInputState.inputVector.x = mouseInput.x;
+            lookInputState.inputVector.y = mouseInput.y;
+        }
+    }
+
+    private void updateMoveInputState() {
+        Vector2 movementInput = inputDriver.FirstPersonCharacter.Move.ReadValue<Vector2>();
+        moveInputState.inputVector.x = movementInput.x;
+        moveInputState.inputVector.y = movementInput.y;
+
+        moveInputState.isJumpClicked = inputDriver.FirstPersonCharacter.Jump.triggered;
     }
 }

@@ -23,7 +23,6 @@ public class FirstPersonController : MonoBehaviour {
     private IEnumerator landRoutine;
 
     [SerializeField][ShowIf("NeverShow")] private Vector2 moveInputVector;
-    [SerializeField][ShowIf("NeverShow")] private Vector2 smoothMoveInputVector;
 
     [SerializeField][ShowIf("NeverShow")] private Vector3 finalMoveDirection;
     [SerializeField][ShowIf("NeverShow")] private Vector3 smoothFinalMoveDirection;
@@ -145,9 +144,7 @@ public class FirstPersonController : MonoBehaviour {
     /*--- Smoothing Methods ---*/
 
     protected virtual void smoothMovementInput() {
-        moveInputVector = moveInputState.inputVector.normalized;
-        smoothMoveInputVector = moveInputVector; //Vector2.Lerp(smoothMoveInputVector,moveInputVector,Time.deltaTime * firstPersonMovementConfig.smoothInputSpeed);
-        //Debug.DrawRay(transform.position, new Vector3(smoothMoveInputVector.x,0f,smoothMoveInputVector.y), Color.green);
+        moveInputVector = moveInputState.inputVector;
     }
 
     protected virtual void smoothMovementSpeed() {
@@ -232,8 +229,8 @@ public class FirstPersonController : MonoBehaviour {
     }
 
     protected virtual void calculateMovementDirection() {
-        Vector3 verticalDirection = transform.forward * smoothMoveInputVector.y;
-        Vector3 horizontalDirection = transform.right * smoothMoveInputVector.x;
+        Vector3 verticalDirection = transform.forward * moveInputVector.y;
+        Vector3 horizontalDirection = transform.right * moveInputVector.x;
 
         Vector3 desiredDirection = verticalDirection + horizontalDirection;
         Vector3 flattenedDirection = flattenVectorOnSlopes(desiredDirection);
@@ -369,7 +366,6 @@ public class FirstPersonController : MonoBehaviour {
     /*--- Movement Methods ---*/
 
     protected virtual void handleHeadBob() {
-
         if (moveInputState.hasInput && isTouchingGround  && !isTouchingWall) {
             if (!isAnimatingCrouch) { // we want to make our head bob only if we are moving and not during crouch routine
                 headBobManager.updateHeadBob(moveInputState.isRunning && canRun(), moveInputState.isCrouching, moveInputState.inputVector);
@@ -409,7 +405,7 @@ public class FirstPersonController : MonoBehaviour {
     }
 
     protected virtual void handleCameraSway() {
-        cameraController.updateCameraSway(smoothMoveInputVector, moveInputState.inputVector.x);
+        cameraController.updateCameraSway(moveInputVector, moveInputState.inputVector.x);
     }
 
     protected virtual void handleJump() {

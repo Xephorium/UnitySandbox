@@ -37,18 +37,23 @@ public class HeadBobManager {
     public void updateHeadBob(bool isRunning, bool isCrouching, Vector2 moveInputVector) {
         isReset = false;
 
+        float speedMultiplier;
         float amplitudeMultiplier;
         float frequencyMultiplier;
         float additionalMultiplier; // when moving backwards or to sides
+
+        speedMultiplier = VectorUtility.calculateVectorStrength(moveInputVector);
 
         amplitudeMultiplier = isRunning ? firstPersonViewConfig.runAmplitudeMultiplier : 1f;
         amplitudeMultiplier = isCrouching ? firstPersonViewConfig.crouchAmplitudeMultiplier : amplitudeMultiplier;
 
         frequencyMultiplier = isRunning ? firstPersonViewConfig.runFrequencyMultiplier : 1f;
         frequencyMultiplier = isCrouching ? firstPersonViewConfig.crouchFrequencyMultiplier : frequencyMultiplier;
+        frequencyMultiplier *= (speedMultiplier / 1f);
 
         additionalMultiplier = moveInputVector.y == -1 ? firstPersonViewConfig.backwardsFrequencyMultiplier : 1f;
         additionalMultiplier = moveInputVector.x != 0 & moveInputVector.y == 0 ? firstPersonViewConfig.sidewaysFrequencyMultiplier : additionalMultiplier;
+        additionalMultiplier *= speedMultiplier;
 
         animationProgressX += Time.deltaTime * firstPersonViewConfig.xFrequency * frequencyMultiplier;
         animationProgressY += Time.deltaTime * firstPersonViewConfig.yFrequency * frequencyMultiplier;
