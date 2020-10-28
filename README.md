@@ -1,4 +1,4 @@
-# Unity Lessons 2020
+# Sandbox
 Two brothers' journey toward building our own universe.
 
 ### Resources & Credits
