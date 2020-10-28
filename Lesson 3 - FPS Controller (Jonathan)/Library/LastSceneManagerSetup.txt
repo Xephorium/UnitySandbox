@@ -1,5 +1,0 @@
-sceneSetups:
-- path: Assets/FPS Controller (Jon's).unity
-  isLoaded: 1
-  isActive: 1
-  isSubScene: 0
