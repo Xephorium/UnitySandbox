@@ -328,6 +328,17 @@ public class @InputDriver : IInputActionCollection, IDisposable
                     ""action"": ""Crouch"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""64222888-ada2-4fac-b5a1-23b1ab888e6d"",
+                    ""path"": ""<Gamepad>/leftStickPress"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Game Input Scheme"",
+                    ""action"": ""Crouch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }

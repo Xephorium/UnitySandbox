@@ -79,7 +79,7 @@ public class FirstPersonController : MonoBehaviour {
             calculateFinalMovementVector();
 
             // Movement Updates
-            handleCrouch();
+            updateCrouchState();
             handleHeadBob();
             handleRunFOV();
             handleCameraSway();
@@ -267,46 +267,53 @@ public class FirstPersonController : MonoBehaviour {
 
     /*--- Crouch Methods ---*/
 
-    protected virtual void handleCrouch() {
-        if (moveInputState.isCrouchClicked && isTouchingGround)
-            invokeCrouchRoutine();
+    protected virtual void updateCrouchState() {
+
+        // Begin Crouch
+        if (moveInputState.isCrouchClicked && !moveInputState.isCrouching && isTouchingGround) {
+            moveInputState.isCrouchClicked = false;
+            moveInputState.isCrouching = true;
+            invokeCrouchRoutine(true);
+
+        // Return From Crouch
+        } else if (moveInputState.isCrouchReleased && moveInputState.isCrouching && !checkIfRoofDirectlyAbove()) {
+            moveInputState.isCrouchReleased = false;
+            moveInputState.isCrouching = false;
+            invokeCrouchRoutine(false);
+        }
     }
 
-    protected virtual void invokeCrouchRoutine() {
-        if (moveInputState.isCrouching)
-            if (checkIfRoofDirectlyAbove())
-                return;
-
+    protected virtual void invokeCrouchRoutine(bool isBeginningCrouch) {
+        
+        // Cancel Running Animations
         if (landRoutine != null)
             StopCoroutine(landRoutine);
-
         if (crouchRoutine != null)
             StopCoroutine(crouchRoutine);
 
-        crouchRoutine = CrouchRoutine();
+        crouchRoutine = CrouchRoutine(isBeginningCrouch);
         StartCoroutine(crouchRoutine);
     }
 
-    protected virtual IEnumerator CrouchRoutine() {
+    protected virtual IEnumerator CrouchRoutine(bool isBeginningCrouch) {
         isAnimatingCrouch = true;
 
+        // Setup Local Variables
         float percent = 0f;
         float smoothPercent = 0f;
         float speed = 1f / firstPersonMovementConfig.crouchTransitionDuration;
-
         float currentHeight = characterController.height;
         Vector3 currentCenter = characterController.center;
-
-        float desiredHeight = moveInputState.isCrouching ? baseHeight : crouchHeight;
-        Vector3 desiredCenter = moveInputState.isCrouching ? baseCenter : crouchCenter;
-
+        float desiredHeight = !isBeginningCrouch ? baseHeight : crouchHeight;
+        Vector3 desiredCenter = !isBeginningCrouch ? baseCenter : crouchCenter;
         Vector3 cameraPosition = transformYaw.localPosition;
         float cameraCurrentHeight = cameraPosition.y;
-        float cameraDesiredHeight = moveInputState.isCrouching ? baseCameraHeight : crouchCameraHeight;
+        float cameraDesiredHeight = !isBeginningCrouch ? baseCameraHeight : crouchCameraHeight;
 
-        moveInputState.isCrouching = !moveInputState.isCrouching;
-        headBobManager.currentBaseHeight = moveInputState.isCrouching ? crouchCameraHeight : baseCameraHeight;
+        // Update HeadBob Height
+        headBobManager.currentBaseHeight = !isBeginningCrouch ? baseCameraHeight : crouchCameraHeight;
 
+        // Animate Crouch
         while (percent < 1f) {
             percent += Time.deltaTime * speed;
             smoothPercent = firstPersonMovementConfig.crouchTransitionCurve.Evaluate(percent);
@@ -336,11 +343,11 @@ public class FirstPersonController : MonoBehaviour {
         if (landRoutine != null)
             StopCoroutine(landRoutine);
 
-        landRoutine = landingRoutine();
+        landRoutine = LandingRoutine();
         StartCoroutine(landRoutine);
     }
 
-    protected virtual IEnumerator landingRoutine() {
+    protected virtual IEnumerator LandingRoutine() {
         float percent = 0f;
         float landAmount = 0f;
 

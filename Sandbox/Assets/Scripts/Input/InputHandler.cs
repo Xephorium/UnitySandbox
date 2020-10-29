@@ -52,8 +52,14 @@ public class InputHandler : MonoBehaviour {
         inputDriver.FirstPersonCharacter.Run.started += _ => { moveInputState.isRunning = true; };
         inputDriver.FirstPersonCharacter.Run.canceled += _ => { moveInputState.isRunning = false; };
         
-        // inputDriver.FirstPersonCharacter.Crouch.started += _ => { moveInputState.isCrouchClicked = true; };
-        // inputDriver.FirstPersonCharacter.Crouch.canceled += _ => { moveInputState.isCrouchClicked = false; };
+        inputDriver.FirstPersonCharacter.Crouch.started += _ => {
+            moveInputState.isCrouchClicked = true;
+            moveInputState.isCrouchReleased = false;
+        };
+        inputDriver.FirstPersonCharacter.Crouch.canceled += _ => {
+            moveInputState.isCrouchClicked = false;
+            moveInputState.isCrouchReleased = true;
+        };
     }
 
     private void updateLookInputState() {

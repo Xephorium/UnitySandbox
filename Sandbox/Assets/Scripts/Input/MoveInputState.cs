@@ -12,6 +12,7 @@ public class MoveInputState : ScriptableObject {
     [ShowIf("NeverShow")] public bool isRunning;
     [ShowIf("NeverShow")] public bool isCrouching;
     [ShowIf("NeverShow")] public bool isCrouchClicked;
+    [ShowIf("NeverShow")] public bool isCrouchReleased;
     [ShowIf("NeverShow")] public bool isJumpClicked;
     [ShowIf("NeverShow")] public bool isRunClicked;
     [ShowIf("NeverShow")] public bool isRunReleased;
@@ -28,6 +29,6 @@ public class MoveInputState : ScriptableObject {
         isCrouchClicked = false;
         isJumpClicked = false;
         isRunClicked = false;
-        isRunReleased =false;
+        isRunReleased = false;
     }
 }
