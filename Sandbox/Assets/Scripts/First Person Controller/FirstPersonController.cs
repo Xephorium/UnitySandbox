@@ -81,7 +81,7 @@ public class FirstPersonController : MonoBehaviour {
             // Movement Updates
             updateCrouchState();
             handleHeadBob();
-            handleRunFOV();
+            updateRunState();
             handleCameraSway();
             handleLanding();
 
@@ -285,7 +285,7 @@ public class FirstPersonController : MonoBehaviour {
 
     protected virtual void invokeCrouchRoutine(bool isBeginningCrouch) {
         
-        // Cancel Running Animations
+        // Cancel Movement Animations
         if (landRoutine != null)
             StopCoroutine(landRoutine);
         if (crouchRoutine != null)
@@ -304,14 +304,14 @@ public class FirstPersonController : MonoBehaviour {
         float speed = 1f / firstPersonMovementConfig.crouchTransitionDuration;
         float currentHeight = characterController.height;
         Vector3 currentCenter = characterController.center;
-        float desiredHeight = !isBeginningCrouch ? baseHeight : crouchHeight;
-        Vector3 desiredCenter = !isBeginningCrouch ? baseCenter : crouchCenter;
+        float desiredHeight = isBeginningCrouch ? crouchHeight : baseHeight;
+        Vector3 desiredCenter = isBeginningCrouch ? crouchCenter : baseCenter;
         Vector3 cameraPosition = transformYaw.localPosition;
         float cameraCurrentHeight = cameraPosition.y;
-        float cameraDesiredHeight = !isBeginningCrouch ? baseCameraHeight : crouchCameraHeight;
+        float cameraDesiredHeight = isBeginningCrouch ? crouchCameraHeight : baseCameraHeight;
 
         // Update HeadBob Height
-        headBobManager.currentBaseHeight = !isBeginningCrouch ? baseCameraHeight : crouchCameraHeight;
+        headBobManager.currentBaseHeight = isBeginningCrouch ? crouchCameraHeight : baseCameraHeight;
 
         // Animate Crouch
         while (percent < 1f) {
@@ -390,23 +390,23 @@ public class FirstPersonController : MonoBehaviour {
         //transformCamera.localPosition = Vector3.Lerp(transformCamera.localPosition,headBobManager.FinalOffset,Time.deltaTime * firstPersonMovementConfig.smoothHeadBobSpeed);
     }
 
-    protected virtual void handleRunFOV() {
+    protected virtual void updateRunState() {
         if (moveInputState.hasInput && isTouchingGround  && !isTouchingWall) {
             if (moveInputState.isRunClicked && canRun()) {
                 isAnimatingRun = true;
-                cameraController.updateRunFov(false);
+                cameraController.updateRunState(false);
             }
 
             if (moveInputState.isRunning && canRun() && !isAnimatingRun ) {
                 isAnimatingRun = true;
-                cameraController.updateRunFov(false);
+                cameraController.updateRunState(false);
             }
         }
 
         if (moveInputState.isRunReleased || !moveInputState.hasInput || isTouchingWall) {
             if (isAnimatingRun) {
                 isAnimatingRun = false;
-                cameraController.updateRunFov(true);
+                cameraController.updateRunState(true);
             }
         }
     }

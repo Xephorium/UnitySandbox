@@ -35,17 +35,17 @@ public class @InputDriver : IInputActionCollection, IDisposable
                     ""interactions"": """"
                 },
                 {
-                    ""name"": ""LookMouse"",
+                    ""name"": ""LookStick"",
                     ""type"": ""Value"",
-                    ""id"": ""67ee5654-5432-49d5-bb16-da467ad51a72"",
+                    ""id"": ""8dc8ff72-d47d-43ed-ab6b-613f176d7878"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """"
                 },
                 {
-                    ""name"": ""LookStick"",
+                    ""name"": ""LookMouse"",
                     ""type"": ""Value"",
-                    ""id"": ""8dc8ff72-d47d-43ed-ab6b-613f176d7878"",
+                    ""id"": ""67ee5654-5432-49d5-bb16-da467ad51a72"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """"
@@ -59,7 +59,15 @@ public class @InputDriver : IInputActionCollection, IDisposable
                     ""interactions"": """"
                 },
                 {
-                    ""name"": ""Zoom"",
+                    ""name"": ""ZoomStick"",
+                    ""type"": ""Button"",
+                    ""id"": ""d9e18a4b-dff3-4008-b539-54f4e427aa73"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""ZoomMouse"",
                     ""type"": ""Button"",
                     ""id"": ""98c66b5d-318e-4ad2-ba12-4002ed460a74"",
                     ""expectedControlType"": ""Button"",
@@ -220,6 +228,72 @@ public class @InputDriver : IInputActionCollection, IDisposable
                     ""isPartOfComposite"": false
                 },
                 {
+                    ""name"": """",
+                    ""id"": ""0d493ed7-8532-43f0-b4f4-0c2e88a655b1"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Game Input Scheme"",
+                    ""action"": ""Run"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c4bcf35f-c4f8-4c21-a891-5c0aef22fd82"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Game Input Scheme"",
+                    ""action"": ""Run"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8d1380c7-195a-4f9c-af21-e7e2e09bc35b"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Game Input Scheme"",
+                    ""action"": ""ZoomMouse"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c108586f-dd03-4225-8dda-d6feeb7e68f3"",
+                    ""path"": ""<Keyboard>/leftCtrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Game Input Scheme"",
+                    ""action"": ""Crouch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""64222888-ada2-4fac-b5a1-23b1ab888e6d"",
+                    ""path"": ""<Gamepad>/leftStickPress"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Game Input Scheme"",
+                    ""action"": ""Crouch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e0172819-22e5-4409-af80-933c2c6d6cc9"",
+                    ""path"": ""<Gamepad>/rightStickPress"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Game Input Scheme"",
+                    ""action"": ""ZoomStick"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
                     ""name"": ""Right Toggle Stick [Gamepad]"",
                     ""id"": ""0d010015-d90a-4714-8c12-513d4c018de6"",
                     ""path"": ""2DVector(mode=2)"",
@@ -273,72 +347,6 @@ public class @InputDriver : IInputActionCollection, IDisposable
                     ""action"": ""LookStick"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""0d493ed7-8532-43f0-b4f4-0c2e88a655b1"",
-                    ""path"": ""<Gamepad>/leftShoulder"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Game Input Scheme"",
-                    ""action"": ""Run"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""c4bcf35f-c4f8-4c21-a891-5c0aef22fd82"",
-                    ""path"": ""<Keyboard>/leftShift"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Game Input Scheme"",
-                    ""action"": ""Run"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""e0172819-22e5-4409-af80-933c2c6d6cc9"",
-                    ""path"": ""<Gamepad>/rightStickPress"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Game Input Scheme"",
-                    ""action"": ""Zoom"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""8d1380c7-195a-4f9c-af21-e7e2e09bc35b"",
-                    ""path"": ""<Mouse>/rightButton"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Game Input Scheme"",
-                    ""action"": ""Zoom"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""c108586f-dd03-4225-8dda-d6feeb7e68f3"",
-                    ""path"": ""<Keyboard>/leftCtrl"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Game Input Scheme"",
-                    ""action"": ""Crouch"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""64222888-ada2-4fac-b5a1-23b1ab888e6d"",
-                    ""path"": ""<Gamepad>/leftStickPress"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Game Input Scheme"",
-                    ""action"": ""Crouch"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -366,10 +374,11 @@ public class @InputDriver : IInputActionCollection, IDisposable
         m_FirstPersonCharacter = asset.FindActionMap("FirstPersonCharacter", throwIfNotFound: true);
         m_FirstPersonCharacter_Jump = m_FirstPersonCharacter.FindAction("Jump", throwIfNotFound: true);
         m_FirstPersonCharacter_Move = m_FirstPersonCharacter.FindAction("Move", throwIfNotFound: true);
-        m_FirstPersonCharacter_LookMouse = m_FirstPersonCharacter.FindAction("LookMouse", throwIfNotFound: true);
         m_FirstPersonCharacter_LookStick = m_FirstPersonCharacter.FindAction("LookStick", throwIfNotFound: true);
+        m_FirstPersonCharacter_LookMouse = m_FirstPersonCharacter.FindAction("LookMouse", throwIfNotFound: true);
         m_FirstPersonCharacter_Run = m_FirstPersonCharacter.FindAction("Run", throwIfNotFound: true);
-        m_FirstPersonCharacter_Zoom = m_FirstPersonCharacter.FindAction("Zoom", throwIfNotFound: true);
+        m_FirstPersonCharacter_ZoomStick = m_FirstPersonCharacter.FindAction("ZoomStick", throwIfNotFound: true);
+        m_FirstPersonCharacter_ZoomMouse = m_FirstPersonCharacter.FindAction("ZoomMouse", throwIfNotFound: true);
         m_FirstPersonCharacter_Crouch = m_FirstPersonCharacter.FindAction("Crouch", throwIfNotFound: true);
     }
 
@@ -422,10 +431,11 @@ public class @InputDriver : IInputActionCollection, IDisposable
     private IFirstPersonCharacterActions m_FirstPersonCharacterActionsCallbackInterface;
     private readonly InputAction m_FirstPersonCharacter_Jump;
     private readonly InputAction m_FirstPersonCharacter_Move;
-    private readonly InputAction m_FirstPersonCharacter_LookMouse;
     private readonly InputAction m_FirstPersonCharacter_LookStick;
+    private readonly InputAction m_FirstPersonCharacter_LookMouse;
     private readonly InputAction m_FirstPersonCharacter_Run;
-    private readonly InputAction m_FirstPersonCharacter_Zoom;
+    private readonly InputAction m_FirstPersonCharacter_ZoomStick;
+    private readonly InputAction m_FirstPersonCharacter_ZoomMouse;
     private readonly InputAction m_FirstPersonCharacter_Crouch;
     public struct FirstPersonCharacterActions
     {
@@ -433,10 +443,11 @@ public class @InputDriver : IInputActionCollection, IDisposable
         public FirstPersonCharacterActions(@InputDriver wrapper) { m_Wrapper = wrapper; }
         public InputAction @Jump => m_Wrapper.m_FirstPersonCharacter_Jump;
         public InputAction @Move => m_Wrapper.m_FirstPersonCharacter_Move;
-        public InputAction @LookMouse => m_Wrapper.m_FirstPersonCharacter_LookMouse;
         public InputAction @LookStick => m_Wrapper.m_FirstPersonCharacter_LookStick;
+        public InputAction @LookMouse => m_Wrapper.m_FirstPersonCharacter_LookMouse;
         public InputAction @Run => m_Wrapper.m_FirstPersonCharacter_Run;
-        public InputAction @Zoom => m_Wrapper.m_FirstPersonCharacter_Zoom;
+        public InputAction @ZoomStick => m_Wrapper.m_FirstPersonCharacter_ZoomStick;
+        public InputAction @ZoomMouse => m_Wrapper.m_FirstPersonCharacter_ZoomMouse;
         public InputAction @Crouch => m_Wrapper.m_FirstPersonCharacter_Crouch;
         public InputActionMap Get() { return m_Wrapper.m_FirstPersonCharacter; }
         public void Enable() { Get().Enable(); }
@@ -453,18 +464,21 @@ public class @InputDriver : IInputActionCollection, IDisposable
                 @Move.started -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnMove;
                 @Move.performed -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnMove;
                 @Move.canceled -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnMove;
-                @LookMouse.started -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnLookMouse;
-                @LookMouse.performed -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnLookMouse;
-                @LookMouse.canceled -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnLookMouse;
                 @LookStick.started -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnLookStick;
                 @LookStick.performed -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnLookStick;
                 @LookStick.canceled -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnLookStick;
+                @LookMouse.started -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnLookMouse;
+                @LookMouse.performed -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnLookMouse;
+                @LookMouse.canceled -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnLookMouse;
                 @Run.started -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnRun;
                 @Run.performed -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnRun;
                 @Run.canceled -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnRun;
-                @Zoom.started -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnZoom;
-                @Zoom.performed -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnZoom;
-                @Zoom.canceled -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnZoom;
+                @ZoomStick.started -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnZoomStick;
+                @ZoomStick.performed -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnZoomStick;
+                @ZoomStick.canceled -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnZoomStick;
+                @ZoomMouse.started -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnZoomMouse;
+                @ZoomMouse.performed -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnZoomMouse;
+                @ZoomMouse.canceled -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnZoomMouse;
                 @Crouch.started -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnCrouch;
                 @Crouch.performed -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnCrouch;
                 @Crouch.canceled -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnCrouch;
@@ -478,18 +492,21 @@ public class @InputDriver : IInputActionCollection, IDisposable
                 @Move.started += instance.OnMove;
                 @Move.performed += instance.OnMove;
                 @Move.canceled += instance.OnMove;
-                @LookMouse.started += instance.OnLookMouse;
-                @LookMouse.performed += instance.OnLookMouse;
-                @LookMouse.canceled += instance.OnLookMouse;
                 @LookStick.started += instance.OnLookStick;
                 @LookStick.performed += instance.OnLookStick;
                 @LookStick.canceled += instance.OnLookStick;
+                @LookMouse.started += instance.OnLookMouse;
+                @LookMouse.performed += instance.OnLookMouse;
+                @LookMouse.canceled += instance.OnLookMouse;
                 @Run.started += instance.OnRun;
                 @Run.performed += instance.OnRun;
                 @Run.canceled += instance.OnRun;
-                @Zoom.started += instance.OnZoom;
-                @Zoom.performed += instance.OnZoom;
-                @Zoom.canceled += instance.OnZoom;
+                @ZoomStick.started += instance.OnZoomStick;
+                @ZoomStick.performed += instance.OnZoomStick;
+                @ZoomStick.canceled += instance.OnZoomStick;
+                @ZoomMouse.started += instance.OnZoomMouse;
+                @ZoomMouse.performed += instance.OnZoomMouse;
+                @ZoomMouse.canceled += instance.OnZoomMouse;
                 @Crouch.started += instance.OnCrouch;
                 @Crouch.performed += instance.OnCrouch;
                 @Crouch.canceled += instance.OnCrouch;
@@ -510,10 +527,11 @@ public class @InputDriver : IInputActionCollection, IDisposable
     {
         void OnJump(InputAction.CallbackContext context);
         void OnMove(InputAction.CallbackContext context);
-        void OnLookMouse(InputAction.CallbackContext context);
         void OnLookStick(InputAction.CallbackContext context);
+        void OnLookMouse(InputAction.CallbackContext context);
         void OnRun(InputAction.CallbackContext context);
-        void OnZoom(InputAction.CallbackContext context);
+        void OnZoomStick(InputAction.CallbackContext context);
+        void OnZoomMouse(InputAction.CallbackContext context);
         void OnCrouch(InputAction.CallbackContext context);
     }
 }

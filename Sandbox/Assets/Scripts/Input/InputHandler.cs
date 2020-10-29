@@ -44,8 +44,27 @@ public class InputHandler : MonoBehaviour {
     /*--- Private Methods ---*/
 
     private void setupLookCallbacks() {
-        // inputDriver.FirstPersonCharacter.Zoom.started += _ => { lookInputState.isZoomClicked = true; };
-        // inputDriver.FirstPersonCharacter.Zoom.canceled += _ => { lookInputState.isZoomReleased = true; };
+
+        // Zoom Stick
+        inputDriver.FirstPersonCharacter.ZoomStick.started += _ => {
+            if (lookInputState.isZooming) {
+                lookInputState.isZoomClicked = false;
+                lookInputState.isZoomReleased = true;
+            } else {
+                lookInputState.isZoomClicked = true;
+                lookInputState.isZoomReleased = false;
+            }
+        };
+
+        // Zoom Mouse
+        inputDriver.FirstPersonCharacter.ZoomMouse.started += _ => {
+            lookInputState.isZoomClicked = true;
+            lookInputState.isZoomReleased = false;
+        };
+        inputDriver.FirstPersonCharacter.ZoomMouse.canceled += _ => {
+            lookInputState.isZoomClicked = false;
+            lookInputState.isZoomReleased = true;
+        };
     }
 
     private void setupMoveCallbacks() {

@@ -12,15 +12,13 @@ public class ZoomManager {
 	private LookInputState lookInputState;
 
 	private Camera camera;
-
 	private bool isRunning;
 	private bool isZooming;
+	private IEnumerator zoomRoutine;
+	private IEnumerator runRoutine;
 
-	private IEnumerator fovZoomRoutine;
-	private IEnumerator fovRunRoutine;
 
-
-	/*--- Methods ---*/
+	/*--- Initialization Method ---*/
 
 	public void initialize(Camera cam, LookInputState state, FirstPersonViewConfig config) {
 		camera = cam;
@@ -28,43 +26,52 @@ public class ZoomManager {
 		firstPersonViewConfig = config;
 	}
 
-	public void updateZoomFov(MonoBehaviour monoBehavior) {
-		if (isRunning) {
-			lookInputState.isZooming = !lookInputState.isZooming;
-			isZooming = lookInputState.isZooming;
-			return;
+
+	/*--- Zoom Methods ---*/
+
+	public void updateZoomState(MonoBehaviour monoBehavior) {
+
+		// Begin Zoom
+		if (lookInputState.isZoomClicked && !lookInputState.isZooming && !isRunning) {
+			lookInputState.isZooming = true;
+			lookInputState.isZoomClicked = false;
+			invokeZoomRoutine(monoBehavior, true);
+
+		// Return From Zoom
+		} else if (lookInputState.isZooming && (lookInputState.isZoomReleased || isRunning)) {
+			lookInputState.isZooming = false;
+			lookInputState.isZoomReleased = false;
+			invokeZoomRoutine(monoBehavior, false);
+
 		}
 
-		if (fovRunRoutine != null) monoBehavior.StopCoroutine(fovRunRoutine);
-		if (fovZoomRoutine != null) monoBehavior.StopCoroutine(fovZoomRoutine);
-
-		fovZoomRoutine = FovZoomRoutine();
-		monoBehavior.StartCoroutine(fovZoomRoutine);
+		// Disregard Input When Running
+		if (isRunning) {
+			lookInputState.isZoomClicked = false;
+			lookInputState.isZoomReleased = false;
+		}
 	}
 
-	public void updateRunFov(bool isReturningToWalk, MonoBehaviour monoBehavior) {
-		if (fovZoomRoutine != null) monoBehavior.StopCoroutine(fovZoomRoutine);
-		if (fovRunRoutine != null) monoBehavior.StopCoroutine(fovRunRoutine);
+	private void invokeZoomRoutine(MonoBehaviour monoBehavior, bool isBeginningZoom) {
 
-		fovRunRoutine = FovRunRoutine(isReturningToWalk);
-		monoBehavior.StartCoroutine(fovRunRoutine);
+		// Cancel Animations
+		if (runRoutine != null)monoBehavior.StopCoroutine(runRoutine);
+		if (zoomRoutine != null)monoBehavior.StopCoroutine(zoomRoutine);
+
+		zoomRoutine = ZoomRoutine(isBeginningZoom);
+		monoBehavior.StartCoroutine(zoomRoutine);
 	}
 
+	IEnumerator ZoomRoutine(bool isBeginningZoom) {
 
-	/*--- Coroutines ---*/
-
-	IEnumerator FovZoomRoutine() {
+		// Setup Local Variables
 		float percent = 0f;
 		float smoothPercent = 0f;
-
 		float speed = 1f / firstPersonViewConfig.zoomTransitionDuration;
-
 		float currentFov = camera.fieldOfView;
-		float targetFov = lookInputState.isZooming ? firstPersonViewConfig.defaultFOV : firstPersonViewConfig.zoomFOV;
+		float targetFov = isBeginningZoom ? firstPersonViewConfig.zoomFOV : firstPersonViewConfig.defaultFOV;
 
-		lookInputState.isZooming = !lookInputState.isZooming;
-		isZooming = lookInputState.isZooming;
-
+		// Animate Zoom
 		while (percent < 1f) {
 			percent += Time.deltaTime * speed;
 			smoothPercent = firstPersonViewConfig.zoomCurve.Evaluate(percent);
@@ -73,19 +80,32 @@ public class ZoomManager {
 		}
 	}
 
-	IEnumerator FovRunRoutine(bool isReturningToWalk) {
+
+	/*--- Run Methods ---*/
+
+	public void updateRunState(bool isReturningToWalk, MonoBehaviour monoBehavior) {
+
+		// Cancel Animations
+		if (zoomRoutine != null) monoBehavior.StopCoroutine(zoomRoutine);
+		if (runRoutine != null) monoBehavior.StopCoroutine(runRoutine);
+
+		runRoutine = RunRoutine(isReturningToWalk);
+		monoBehavior.StartCoroutine(runRoutine);
+	}
+
+	IEnumerator RunRoutine(bool isReturningToWalk) {
+
+		// Setup Local Variables
 		float percent = 0f;
 		float smoothPercent = 0f;
-
-		float duration = isReturningToWalk ?
-		                 firstPersonViewConfig.runReturnTransitionDuration : firstPersonViewConfig.runTransitionDuration;
+		float duration = isReturningToWalk ? firstPersonViewConfig.runReturnTransitionDuration
+										   : firstPersonViewConfig.runTransitionDuration;
 		float speed = 1f / duration;
-
 		float currentFov = camera.fieldOfView;
 		float targetFov = isReturningToWalk ? firstPersonViewConfig.defaultFOV : firstPersonViewConfig.runFOV;
-
 		isRunning = !isReturningToWalk;
 
+		// Animate Run
 		while (percent < 1f) {
 			percent += Time.deltaTime * speed;
 			smoothPercent = firstPersonViewConfig.runCurve.Evaluate(percent);

@@ -22,17 +22,17 @@
                     "interactions": ""
                 },
                 {
-                    "name": "LookMouse",
+                    "name": "LookStick",
                     "type": "Value",
-                    "id": "67ee5654-5432-49d5-bb16-da467ad51a72",
+                    "id": "8dc8ff72-d47d-43ed-ab6b-613f176d7878",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": ""
                 },
                 {
-                    "name": "LookStick",
+                    "name": "LookMouse",
                     "type": "Value",
-                    "id": "8dc8ff72-d47d-43ed-ab6b-613f176d7878",
+                    "id": "67ee5654-5432-49d5-bb16-da467ad51a72",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": ""
@@ -46,7 +46,15 @@
                     "interactions": ""
                 },
                 {
-                    "name": "Zoom",
+                    "name": "ZoomStick",
+                    "type": "Button",
+                    "id": "d9e18a4b-dff3-4008-b539-54f4e427aa73",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "ZoomMouse",
                     "type": "Button",
                     "id": "98c66b5d-318e-4ad2-ba12-4002ed460a74",
                     "expectedControlType": "Button",
@@ -207,6 +215,72 @@
                     "isPartOfComposite": false
                 },
                 {
+                    "name": "",
+                    "id": "0d493ed7-8532-43f0-b4f4-0c2e88a655b1",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Game Input Scheme",
+                    "action": "Run",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c4bcf35f-c4f8-4c21-a891-5c0aef22fd82",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Game Input Scheme",
+                    "action": "Run",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8d1380c7-195a-4f9c-af21-e7e2e09bc35b",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Game Input Scheme",
+                    "action": "ZoomMouse",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c108586f-dd03-4225-8dda-d6feeb7e68f3",
+                    "path": "<Keyboard>/leftCtrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Game Input Scheme",
+                    "action": "Crouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "64222888-ada2-4fac-b5a1-23b1ab888e6d",
+                    "path": "<Gamepad>/leftStickPress",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Game Input Scheme",
+                    "action": "Crouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e0172819-22e5-4409-af80-933c2c6d6cc9",
+                    "path": "<Gamepad>/rightStickPress",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Game Input Scheme",
+                    "action": "ZoomStick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
                     "name": "Right Toggle Stick [Gamepad]",
                     "id": "0d010015-d90a-4714-8c12-513d4c018de6",
                     "path": "2DVector(mode=2)",
@@ -260,72 +334,6 @@
                     "action": "LookStick",
                     "isComposite": false,
                     "isPartOfComposite": true
-                },
-                {
-                    "name": "",
-                    "id": "0d493ed7-8532-43f0-b4f4-0c2e88a655b1",
-                    "path": "<Gamepad>/leftShoulder",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Game Input Scheme",
-                    "action": "Run",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "c4bcf35f-c4f8-4c21-a891-5c0aef22fd82",
-                    "path": "<Keyboard>/leftShift",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Game Input Scheme",
-                    "action": "Run",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "e0172819-22e5-4409-af80-933c2c6d6cc9",
-                    "path": "<Gamepad>/rightStickPress",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Game Input Scheme",
-                    "action": "Zoom",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "8d1380c7-195a-4f9c-af21-e7e2e09bc35b",
-                    "path": "<Mouse>/rightButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Game Input Scheme",
-                    "action": "Zoom",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "c108586f-dd03-4225-8dda-d6feeb7e68f3",
-                    "path": "<Keyboard>/leftCtrl",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Game Input Scheme",
-                    "action": "Crouch",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "64222888-ada2-4fac-b5a1-23b1ab888e6d",
-                    "path": "<Gamepad>/leftStickPress",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Game Input Scheme",
-                    "action": "Crouch",
-                    "isComposite": false,
-                    "isPartOfComposite": false
                 }
             ]
         }

@@ -42,7 +42,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   runTransitionDuration: 0.4
   runReturnTransitionDuration: 0.17
-  zoomFOV: 55
+  zoomFOV: 50
   zoomCurve:
     serializedVersion: 2
     m_Curve:

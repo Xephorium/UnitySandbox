@@ -34,7 +34,7 @@ public class CameraController : MonoBehaviour {
 		calculateRotation();
 		smoothRotation();
 		applyRotation();
-		handleZoom();
+		updateZoomState();
 	}
 
 
@@ -44,8 +44,8 @@ public class CameraController : MonoBehaviour {
 		swayManager.updateSway(inputVector, inputRawX);
 	}
 
-	public void updateRunFov(bool isReturningToWalk) {
-		zoomManager.updateRunFov(isReturningToWalk, this);
+	public void updateRunState(bool isReturningToWalk) {
+		zoomManager.updateRunState(isReturningToWalk, this);
 	}
 
 
@@ -87,9 +87,8 @@ public class CameraController : MonoBehaviour {
 		pitchTranform.localEulerAngles = new Vector3(pitch, 0f, 0f);
 	}
 
-	void handleZoom() {
-		if (lookInputState.isZoomClicked || lookInputState.isZoomReleased)
-			zoomManager.updateZoomFov(this);
+	void updateZoomState() {
+		zoomManager.updateZoomState(this);
 	}
 
 	void lockCursor() {
