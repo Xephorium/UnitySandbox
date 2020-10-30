@@ -7,11 +7,11 @@ public class InputHandler : MonoBehaviour {
 
     /*--- Variables ---*/
 
+    [SerializeField] private FirstPersonViewConfig firstPersonViewConfig = null;
     [SerializeField] private LookInputState lookInputState = null;
     [SerializeField] private MoveInputState moveInputState = null;
 
     private InputDriver inputDriver;
-    private float stickDriftThreshold = 0.05f; // TODO - Move to Config
 
 
     /*--- Lifecycle Methods---*/
@@ -71,7 +71,7 @@ public class InputHandler : MonoBehaviour {
     private void setupMoveCallbacks() {
         inputDriver.FirstPersonCharacter.Run.started += _ => { moveInputState.isRunning = true; };
         inputDriver.FirstPersonCharacter.Run.canceled += _ => { moveInputState.isRunning = false; };
-        
+
         inputDriver.FirstPersonCharacter.Crouch.started += _ => {
             moveInputState.isCrouchClicked = true;
             moveInputState.isCrouchReleased = false;
@@ -82,27 +82,28 @@ public class InputHandler : MonoBehaviour {
         };
     }
 
-    private void updateLookInputState() { 
-            Vector2 stickInput = inputDriver.FirstPersonCharacter.LookStick.ReadValue<Vector2>();
-            Vector2 mouseInput = inputDriver.FirstPersonCharacter.LookMouse.ReadValue<Vector2>();
+    private void updateLookInputState() {
+        Vector2 stickInput = inputDriver.FirstPersonCharacter.LookStick.ReadValue<Vector2>();
+        Vector2 mouseInput = inputDriver.FirstPersonCharacter.LookMouse.ReadValue<Vector2>();
 
-            // Update Input Device
-            if (stickInput.magnitude < stickDriftThreshold && mouseInput != Vector2.zero) {
-                lookInputState.isStickAiming = false;
-            } else if (stickInput != Vector2.zero) {
-                lookInputState.isStickAiming = true;
-            } else if (mouseInput != Vector2.zero) {
-                lookInputState.isStickAiming = false;
-            }
+        // Update Input Device
+        if (stickInput.magnitude < firstPersonViewConfig.stickLookDriftThreshold
+            && mouseInput != Vector2.zero) {
+            lookInputState.isStickAiming = false;
+        } else if (stickInput != Vector2.zero) {
+            lookInputState.isStickAiming = true;
+        } else if (mouseInput != Vector2.zero) {
+            lookInputState.isStickAiming = false;
+        }
 
-            // Record Look Input
-            if (lookInputState.isStickAiming) {
-                lookInputState.inputVector.x = stickInput.x;
-                lookInputState.inputVector.y = stickInput.y;
-            } else {
-                lookInputState.inputVector.x = mouseInput.x;
-                lookInputState.inputVector.y = mouseInput.y;
-            }
+        // Record Look Input
+        if (lookInputState.isStickAiming) {
+            lookInputState.inputVector.x = stickInput.x;
+            lookInputState.inputVector.y = stickInput.y;
+        } else {
+            lookInputState.inputVector.x = mouseInput.x;
+            lookInputState.inputVector.y = mouseInput.y;
+        }
     }
 
     private void updateMoveInputState() {

@@ -5,8 +5,9 @@ using NaughtyAttributes;
 public class FirstPersonViewConfig : ScriptableObject {
 
 	[Foldout("General")] [Label("FOV")] [Range(50f, 120f)]public float defaultFOV = 80f;
-	[Foldout("General")] [Label("Mouse Look Speed")] public Vector2 lookSensitivityMouse = new Vector2(1f, 1f);
-    [Foldout("General")] [Label("Stick Look Speed")] public Vector2 lookSensitivityStick = new Vector2(14.5f, 9.5f);
+	[Foldout("General")] [Label("Mouse Look Sensitivity")] public Vector2 lookSensitivityMouse = new Vector2(1f, 1f);
+    [Foldout("General")] [Label("Stick Look Sensitivity")] public Vector2 lookSensitivityStick = new Vector2(14.5f, 9.5f);
+    [Foldout("General")] [Label("Stick Look Drift Threshold")] public float stickLookDriftThreshold = 0.05f;
 	[Foldout("General")] [Label("Vertical Angle Clamp")] [MinMaxSlider(-90f,90f)] public Vector2 verticalAngleClamp = new Vector2(-90f, 90f);
 
     [Foldout("Run")] [Range(60f, 150f)] public float runFOV = 90f;

@@ -1037,5 +1037,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: First Person Character
       objectReference: {fileID: 0}
+    - target: {fileID: 7384896022013958069, guid: bc127966a8791d047a712828045c82d1,
+        type: 3}
+      propertyPath: firstPersonViewConfig
+      value: 
+      objectReference: {fileID: 11400000, guid: 093345c03bf9e8c4cbb8f1251ead678c,
+        type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bc127966a8791d047a712828045c82d1, type: 3}
