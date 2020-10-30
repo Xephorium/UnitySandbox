@@ -1,3 +1,5 @@
+<img align="left" width="120" src="Sandbox/Assets/Textures/Icon/Icon.png" alt="Sandbox Icon">
+
 # Sandbox
 Two brothers' journey toward building our own universe.
 
