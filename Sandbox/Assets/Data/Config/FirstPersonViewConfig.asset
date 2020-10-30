@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: FirstPersonViewConfig
   m_EditorClassIdentifier: 
   defaultFOV: 80
-  lookSensitivity: {x: 8, y: 8}
+  lookSensitivityMouse: {x: 1.5, y: 1.5}
+  lookSensitivityStick: {x: 1.25, y: 1.25}
   verticalAngleClamp: {x: -90, y: 90}
   runFOV: 90
   runCurve:

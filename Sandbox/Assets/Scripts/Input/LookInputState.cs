@@ -9,6 +9,7 @@ public class LookInputState : ScriptableObject {
 	/*--- Variables---*/
 
 	[ShowIf("NeverShow")] public Vector2 inputVector;
+	[ShowIf("NeverShow")] public bool isStickAiming;
 	[ShowIf("NeverShow")] public bool isZooming;
 	[ShowIf("NeverShow")] public bool isZoomClicked;
 	[ShowIf("NeverShow")] public bool isZoomReleased;
@@ -18,6 +19,7 @@ public class LookInputState : ScriptableObject {
 
 	public void resetInput() {
 		inputVector = Vector2.zero;
+		isStickAiming = false;
 		isZooming = false;
 		isZoomClicked = false;
 		isZoomReleased = false;

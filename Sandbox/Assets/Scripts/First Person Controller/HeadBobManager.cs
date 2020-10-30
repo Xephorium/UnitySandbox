@@ -42,7 +42,7 @@ public class HeadBobManager {
         float frequencyMultiplier;
         float additionalMultiplier; // when moving backwards or to sides
 
-        speedMultiplier = VectorUtility.calculateVectorStrength(moveInputVector);
+        speedMultiplier = moveInputVector.magnitude;
 
         amplitudeMultiplier = isRunning ? firstPersonViewConfig.runAmplitudeMultiplier : 1f;
         amplitudeMultiplier = isCrouching ? firstPersonViewConfig.crouchAmplitudeMultiplier : amplitudeMultiplier;

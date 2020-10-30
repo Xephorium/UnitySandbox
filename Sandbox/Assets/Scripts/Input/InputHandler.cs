@@ -11,6 +11,7 @@ public class InputHandler : MonoBehaviour {
     [SerializeField] private MoveInputState moveInputState = null;
 
     private InputDriver inputDriver;
+    private float stickDriftThreshold = 0.05f; // TODO - Move to Config
 
 
     /*--- Lifecycle Methods---*/
@@ -81,22 +82,27 @@ public class InputHandler : MonoBehaviour {
         };
     }
 
-    private void updateLookInputState() {
-        Vector2 stickInput = inputDriver.FirstPersonCharacter.LookStick.ReadValue<Vector2>();
-        Vector2 mouseInput = inputDriver.FirstPersonCharacter.LookMouse.ReadValue<Vector2>();
+    private void updateLookInputState() { 
+            Vector2 stickInput = inputDriver.FirstPersonCharacter.LookStick.ReadValue<Vector2>();
+            Vector2 mouseInput = inputDriver.FirstPersonCharacter.LookMouse.ReadValue<Vector2>();
 
-        if (stickInput != Vector2.zero) {
+            // Update Input Device
+            if (stickInput.magnitude < stickDriftThreshold && mouseInput != Vector2.zero) {
+                lookInputState.isStickAiming = false;
+            } else if (stickInput != Vector2.zero) {
+                lookInputState.isStickAiming = true;
+            } else if (mouseInput != Vector2.zero) {
+                lookInputState.isStickAiming = false;
+            }
 
-            // Use Stick Input
-            lookInputState.inputVector.x = stickInput.x * 14.5f;
-            lookInputState.inputVector.y = stickInput.y * 9.5f;
-
-        } else {
-
-            // Use Mouse Input
-            lookInputState.inputVector.x = mouseInput.x;
-            lookInputState.inputVector.y = mouseInput.y;
-        }
+            // Record Look Input
+            if (lookInputState.isStickAiming) {
+                lookInputState.inputVector.x = stickInput.x;
+                lookInputState.inputVector.y = stickInput.y;
+            } else {
+                lookInputState.inputVector.x = mouseInput.x;
+                lookInputState.inputVector.y = mouseInput.y;
+            }
     }
 
     private void updateMoveInputState() {
