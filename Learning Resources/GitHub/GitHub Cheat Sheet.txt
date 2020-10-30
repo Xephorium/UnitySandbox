@@ -1,11 +1,16 @@
 
+//////////////////////////
+/// GitHub Cheat Sheet ///
+//////////////////////////
 
-////////////////////
-/// GitHub Setup ///
-////////////////////
+
+/*--- Overview ---*/
 
 GitHub is basically just a fancy code collaboration tool. It allows us to work on the same project from afar
 without emailing zip files or exchanging a flash drive.
+
+
+/*--- First Time Setup ---*/
 
 1. Create an account [Follow Xephorium! :) ]
      https://github.com/
@@ -21,3 +26,15 @@ without emailing zip files or exchanging a flash drive.
      git reset --hard     -->  Disregard local changes & reset to last known server state (might have to do this before pull)
 
 We'll add to this as we go, but this should be enough to get us up and running!
+
+
+/*--- Commands ---*/
+
+git reset --hard               // Remove all local changes (be careful, will delete files!)      
+git pull                       // Pull remote commits to local         
+git add -A                     // Track all local changes for commit
+        "Folder"               // Track specific folder for commit
+        "Folder\Subfolder"     // Track specific folder for commit
+        "Folder\File.txt"      // Track specific file for commit
+git commit -m "Make Changes"   // Commit changes locally with specific message
+git push                       // Push local commits to server
