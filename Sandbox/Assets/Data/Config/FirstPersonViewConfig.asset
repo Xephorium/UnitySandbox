@@ -14,7 +14,56 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultFOV: 80
   lookSensitivityMouse: {x: 1.5, y: 1.5}
-  lookSensitivityStick: {x: 1.25, y: 1.25}
+  lookSensitivityStick: {x: 1.5, y: 1.5}
+  stickLookAcceleration:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0.30252102
+      outSlope: 0.30252102
+      tangentMode: 0
+      weightedMode: 2
+      inWeight: 0
+      outWeight: 0.5833333
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 2.8235292
+      outSlope: 2.8235292
+      tangentMode: 0
+      weightedMode: 1
+      inWeight: 0.0625
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  stickTurnAcceleration:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  stickLookDriftThreshold: 0.05
   verticalAngleClamp: {x: -90, y: 90}
   runFOV: 90
   runCurve:
@@ -41,8 +90,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  runTransitionDuration: 0.4
-  runReturnTransitionDuration: 0.17
+  runTransitionDuration: 0.25
+  runReturnTransitionDuration: 0.15
   zoomFOV: 50
   zoomCurve:
     serializedVersion: 2
@@ -171,8 +220,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 1
     m_RotationOrder: 4
-  xAmplitude: 0.0375
-  yAmplitude: 0.063
+  xAmplitude: 0.04
+  yAmplitude: 0.04
   xFrequency: 1.42
   yFrequency: 2.84
   runAmplitudeMultiplier: 1.5
