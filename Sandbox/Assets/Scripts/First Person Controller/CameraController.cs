@@ -16,7 +16,7 @@ public class CameraController : MonoBehaviour {
 
 	private const float MOUSE_LOOK_BASE_MULTIPLIER = 5f;
 	private const float STICK_LOOK_BASE_MULTIPLIER = 65f;
-	private const float STICK_LOOK_HORIZ_MULTIPLIER = 1.3f;
+	private const float STICK_LOOK_HORIZ_MULTIPLIER = 1.26f;
 	private const float DIAGONAL_VECTOR_MEGNITUDE = 0.7071f;
 
 	// TODO - Extract to Config
@@ -24,7 +24,7 @@ public class CameraController : MonoBehaviour {
 	private const float ACCELERATION_LENGTH = 0.8f;
 	private const float HORIZ_ACC_FACTOR = 2f;
 	private const float VERT_ACC_FACTOR = 1.7f;
-	private const float ZOOM_FACTOR = 0.7f;
+	private const float ZOOM_FACTOR = 0.8f;
 
 	[SerializeField] private LookInputState lookInputState = null;
 	[SerializeField] private FirstPersonViewConfig firstPersonViewConfig = null;

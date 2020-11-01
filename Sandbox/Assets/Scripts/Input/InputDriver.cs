@@ -81,6 +81,14 @@ public class @InputDriver : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Exit"",
+                    ""type"": ""Button"",
+                    ""id"": ""9e7abc95-7e29-47ab-a256-0546a2ebae56"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -347,6 +355,28 @@ public class @InputDriver : IInputActionCollection, IDisposable
                     ""action"": ""LookStick"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a30b6930-07ea-41e4-8220-fdac9de600e8"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Game Input Scheme"",
+                    ""action"": ""Exit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2666f638-dae4-4ced-8f48-4a2881f04b74"",
+                    ""path"": ""<Gamepad>/select"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Game Input Scheme"",
+                    ""action"": ""Exit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -380,6 +410,7 @@ public class @InputDriver : IInputActionCollection, IDisposable
         m_FirstPersonCharacter_ZoomStick = m_FirstPersonCharacter.FindAction("ZoomStick", throwIfNotFound: true);
         m_FirstPersonCharacter_ZoomMouse = m_FirstPersonCharacter.FindAction("ZoomMouse", throwIfNotFound: true);
         m_FirstPersonCharacter_Crouch = m_FirstPersonCharacter.FindAction("Crouch", throwIfNotFound: true);
+        m_FirstPersonCharacter_Exit = m_FirstPersonCharacter.FindAction("Exit", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -437,6 +468,7 @@ public class @InputDriver : IInputActionCollection, IDisposable
     private readonly InputAction m_FirstPersonCharacter_ZoomStick;
     private readonly InputAction m_FirstPersonCharacter_ZoomMouse;
     private readonly InputAction m_FirstPersonCharacter_Crouch;
+    private readonly InputAction m_FirstPersonCharacter_Exit;
     public struct FirstPersonCharacterActions
     {
         private @InputDriver m_Wrapper;
@@ -449,6 +481,7 @@ public class @InputDriver : IInputActionCollection, IDisposable
         public InputAction @ZoomStick => m_Wrapper.m_FirstPersonCharacter_ZoomStick;
         public InputAction @ZoomMouse => m_Wrapper.m_FirstPersonCharacter_ZoomMouse;
         public InputAction @Crouch => m_Wrapper.m_FirstPersonCharacter_Crouch;
+        public InputAction @Exit => m_Wrapper.m_FirstPersonCharacter_Exit;
         public InputActionMap Get() { return m_Wrapper.m_FirstPersonCharacter; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -482,6 +515,9 @@ public class @InputDriver : IInputActionCollection, IDisposable
                 @Crouch.started -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnCrouch;
                 @Crouch.performed -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnCrouch;
                 @Crouch.canceled -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnCrouch;
+                @Exit.started -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnExit;
+                @Exit.performed -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnExit;
+                @Exit.canceled -= m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface.OnExit;
             }
             m_Wrapper.m_FirstPersonCharacterActionsCallbackInterface = instance;
             if (instance != null)
@@ -510,6 +546,9 @@ public class @InputDriver : IInputActionCollection, IDisposable
                 @Crouch.started += instance.OnCrouch;
                 @Crouch.performed += instance.OnCrouch;
                 @Crouch.canceled += instance.OnCrouch;
+                @Exit.started += instance.OnExit;
+                @Exit.performed += instance.OnExit;
+                @Exit.canceled += instance.OnExit;
             }
         }
     }
@@ -533,5 +572,6 @@ public class @InputDriver : IInputActionCollection, IDisposable
         void OnZoomStick(InputAction.CallbackContext context);
         void OnZoomMouse(InputAction.CallbackContext context);
         void OnCrouch(InputAction.CallbackContext context);
+        void OnExit(InputAction.CallbackContext context);
     }
 }

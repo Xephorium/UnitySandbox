@@ -14,19 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultFOV: 80
   lookSensitivityMouse: {x: 1.5, y: 1.5}
-  lookSensitivityStick: {x: 1.5, y: 1.5}
+  lookSensitivityStick: {x: 1.52, y: 1.52}
   stickLookAcceleration:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0.30252102
-      outSlope: 0.30252102
+      inSlope: 0.18710136
+      outSlope: 0.18710136
       tangentMode: 0
       weightedMode: 2
       inWeight: 0
-      outWeight: 0.5833333
+      outWeight: 0.69166666
     - serializedVersion: 3
       time: 1
       value: 1

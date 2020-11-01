@@ -26,6 +26,8 @@ public class InputHandler : MonoBehaviour {
 
         setupLookCallbacks();
         setupMoveCallbacks();
+
+        setupGameStateCallbacks();
     }
 
     void OnEnable() {
@@ -79,6 +81,18 @@ public class InputHandler : MonoBehaviour {
         inputDriver.FirstPersonCharacter.Crouch.canceled += _ => {
             moveInputState.isCrouchClicked = false;
             moveInputState.isCrouchReleased = true;
+        };
+    }
+
+    private void setupGameStateCallbacks() {
+        inputDriver.FirstPersonCharacter.Exit.started += _ => { 
+            #if UNITY_STANDALONE
+                Application.Quit();
+            #endif
+ 
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+            #endif
         };
     }
 
