@@ -9,7 +9,6 @@ public class MoveInputState : ScriptableObject {
     /*--- Variables ---*/
 
     [ShowIf("NeverShow")] public Vector2 inputVector;
-    [ShowIf("NeverShow")] public bool isRunning;
     [ShowIf("NeverShow")] public bool isCrouching;
     [ShowIf("NeverShow")] public bool isCrouchClicked;
     [ShowIf("NeverShow")] public bool isCrouchReleased;
@@ -24,7 +23,6 @@ public class MoveInputState : ScriptableObject {
 
     public void resetInput() {
         inputVector = Vector2.zero;
-        isRunning = false;
         isCrouching = false;
         isCrouchClicked = false;
         isJumpClicked = false;

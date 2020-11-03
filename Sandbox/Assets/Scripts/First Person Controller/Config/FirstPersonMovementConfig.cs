@@ -12,7 +12,8 @@ public class FirstPersonMovementConfig : ScriptableObject {
     [Foldout("Base Movement")] public float moveSideSpeedPercent = 1f;
     [Foldout("Base Movement")] public float gravityMultiplier = 2.5f;
 
-    [Foldout("Run Animation")] public float canRunThreshold = 0.7f;
+    [Foldout("Run Animation")] public float runDirectionThreshold = 0.7f;
+    [Foldout("Run Animation")] public float runInputThreshold = 0.7f;
     [Foldout("Run Animation")] public AnimationCurve runTransitionCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     [Foldout("Crouch Animation")] public float crouchPercent = 0.7f;

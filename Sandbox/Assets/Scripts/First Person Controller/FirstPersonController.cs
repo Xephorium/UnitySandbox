@@ -22,6 +22,8 @@ public class FirstPersonController : MonoBehaviour {
     private IEnumerator crouchRoutine;
     private IEnumerator landRoutine;
 
+    private bool isPlayerRunning = false;
+
     [SerializeField][ShowIf("NeverShow")] private Vector2 moveInputVector;
 
     [SerializeField][ShowIf("NeverShow")] private Vector3 finalMoveDirection;
@@ -69,7 +71,6 @@ public class FirstPersonController : MonoBehaviour {
             checkIfTouchingWall();
 
             // Smoothing Calculations
-            smoothMovementInput();
             smoothMovementSpeed();
             smoothMovementDirection();
 
@@ -80,8 +81,8 @@ public class FirstPersonController : MonoBehaviour {
 
             // Movement Updates
             updateCrouchState();
-            handleHeadBob();
             updateRunState();
+            handleHeadBob();
             handleCameraSway();
             handleLanding();
 
@@ -143,14 +144,10 @@ public class FirstPersonController : MonoBehaviour {
 
     /*--- Smoothing Methods ---*/
 
-    protected virtual void smoothMovementInput() {
-        moveInputVector = moveInputState.inputVector;
-    }
-
     protected virtual void smoothMovementSpeed() {
         smoothCurrentSpeed = Mathf.Lerp(smoothCurrentSpeed, currentSpeed, Time.deltaTime * firstPersonMovementConfig.smoothVelocitySpeed);
 
-        if (moveInputState.isRunning && canRun()) {
+        if (isPlayerRunning) {
             float _walkRunPercent = Mathf.InverseLerp(firstPersonMovementConfig.walkSpeed, firstPersonMovementConfig.runSpeed, smoothCurrentSpeed);
             smoothFinalCurrentSpeed = firstPersonMovementConfig.runTransitionCurve.Evaluate(_walkRunPercent) * speedDifferenceWalkRun + firstPersonMovementConfig.walkSpeed;
         } else {
@@ -218,17 +215,9 @@ public class FirstPersonController : MonoBehaviour {
         return false; // hitRoof;
     }
 
-    protected virtual bool canRun() {
-        Vector3 normalizedDirection = Vector3.zero;
-
-        if (smoothFinalMoveDirection != Vector3.zero)
-            normalizedDirection = smoothFinalMoveDirection.normalized;
-
-        float dotProduct = Vector3.Dot(transform.forward, normalizedDirection);
-        return dotProduct >= firstPersonMovementConfig.canRunThreshold && !moveInputState.isCrouching ? true : false;
-    }
-
     protected virtual void calculateMovementDirection() {
+        moveInputVector = moveInputState.inputVector;
+
         Vector3 verticalDirection = transform.forward * moveInputVector.y;
         Vector3 horizontalDirection = transform.right * moveInputVector.x;
 
@@ -245,7 +234,7 @@ public class FirstPersonController : MonoBehaviour {
     }
 
     protected virtual void calculateMovementSpeed() {
-        currentSpeed = moveInputState.isRunning && canRun() ? firstPersonMovementConfig.runSpeed : firstPersonMovementConfig.walkSpeed;
+        currentSpeed = isPlayerRunning ? firstPersonMovementConfig.runSpeed : firstPersonMovementConfig.walkSpeed;
         currentSpeed = moveInputState.isCrouching ? firstPersonMovementConfig.crouchSpeed : currentSpeed;
         currentSpeed = !moveInputState.hasInput ? 0f : currentSpeed;
         currentSpeed = moveInputState.inputVector.y == -1 ? currentSpeed * firstPersonMovementConfig.moveBackwardsSpeedPercent : currentSpeed;
@@ -370,12 +359,43 @@ public class FirstPersonController : MonoBehaviour {
     }
 
 
+    /*--- Run Methods ---*/
+
+    protected virtual bool canBeginRun() {
+        return moveInputState.inputVector.y > firstPersonMovementConfig.runInputThreshold
+               && isRunDirectionValid()
+               && isTouchingGround
+               && !isTouchingWall
+               && !moveInputState.isCrouching;
+    }
+
+    protected virtual bool canContinueRun() {
+        return moveInputState.inputVector.y > firstPersonMovementConfig.runInputThreshold
+               && isRunDirectionValid()
+               && !isTouchingWall
+               && !moveInputState.isCrouching;
+    }
+
+    /* Note: Calculates the portion of movement facing the same direction as the player.
+     *       This prevents running when the player is moving sideways or backwards. We find
+     *       the amount of movement in the forward direction by taking the dot product of
+     *       the forward direction and the move direction.
+     */
+    private bool isRunDirectionValid() {
+        Vector3 moveDirection = smoothFinalMoveDirection != Vector3.zero
+                                ? smoothFinalMoveDirection.normalized
+                                : Vector3.zero;
+        float moveDirectionFactor = Vector3.Dot(transform.forward, moveDirection);
+        return moveDirectionFactor > firstPersonMovementConfig.runDirectionThreshold;
+    }
+
+
     /*--- Movement Methods ---*/
 
     protected virtual void handleHeadBob() {
         if (moveInputState.hasInput && isTouchingGround  && !isTouchingWall) {
             if (!isAnimatingCrouch) { // we want to make our head bob only if we are moving and not during crouch routine
-                headBobManager.updateHeadBob(moveInputState.isRunning && canRun(), moveInputState.isCrouching, moveInputState.inputVector);
+                headBobManager.updateHeadBob(isPlayerRunning, moveInputState.isCrouching, moveInputState.inputVector);
                 transformYaw.localPosition = Vector3.Lerp(transformYaw.localPosition, (Vector3.up * headBobManager.currentBaseHeight) + headBobManager.currentPositionOffset, Time.deltaTime * firstPersonMovementConfig.smoothHeadBobSpeed);
             }
         } else { // if we are not moving or we are not grounded
@@ -391,24 +411,23 @@ public class FirstPersonController : MonoBehaviour {
     }
 
     protected virtual void updateRunState() {
-        if (moveInputState.hasInput && isTouchingGround  && !isTouchingWall) {
-            if (moveInputState.isRunClicked && canRun()) {
-                isAnimatingRun = true;
-                cameraController.updateRunState(false);
-            }
+        if (!isPlayerRunning && moveInputState.isRunClicked && canBeginRun()) {
 
-            if (moveInputState.isRunning && canRun() && !isAnimatingRun ) {
-                isAnimatingRun = true;
-                cameraController.updateRunState(false);
-            }
+            // Begin Running
+            moveInputState.isRunClicked = false;
+            isPlayerRunning = true;
+            cameraController.beginRunFovAnimation(true);
+
+        } else if (isPlayerRunning && (!canContinueRun() || moveInputState.isRunReleased)) {
+
+            // End Running
+            moveInputState.isRunClicked = false;
+            moveInputState.isRunClicked = false;
+            isPlayerRunning = false;
+            cameraController.beginRunFovAnimation(false);
         }
 
-        if (moveInputState.isRunReleased || !moveInputState.hasInput || isTouchingWall) {
-            if (isAnimatingRun) {
-                isAnimatingRun = false;
-                cameraController.updateRunState(true);
-            }
-        }
+        // TODO - Continue run in air even after player releases with momentum update.
     }
 
     protected virtual void handleCameraSway() {

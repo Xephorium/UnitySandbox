@@ -19,7 +19,8 @@ MonoBehaviour:
   moveBackwardsSpeedPercent: 1
   moveSideSpeedPercent: 1
   gravityMultiplier: 2.5
-  canRunThreshold: 0.7
+  runDirectionThreshold: 0.7
+  runInputThreshold: 0.85
   runTransitionCurve:
     serializedVersion: 2
     m_Curve:

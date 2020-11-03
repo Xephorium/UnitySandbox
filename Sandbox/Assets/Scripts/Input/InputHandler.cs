@@ -71,8 +71,14 @@ public class InputHandler : MonoBehaviour {
     }
 
     private void setupMoveCallbacks() {
-        inputDriver.FirstPersonCharacter.Run.started += _ => { moveInputState.isRunning = true; };
-        inputDriver.FirstPersonCharacter.Run.canceled += _ => { moveInputState.isRunning = false; };
+        inputDriver.FirstPersonCharacter.Run.started += _ => {
+            moveInputState.isRunClicked = true;
+            moveInputState.isRunReleased = false;
+        };
+        inputDriver.FirstPersonCharacter.Run.canceled += _ => {
+            moveInputState.isRunClicked = false;
+            moveInputState.isRunReleased = true;
+        };
 
         inputDriver.FirstPersonCharacter.Crouch.started += _ => {
             moveInputState.isCrouchClicked = true;

@@ -25,12 +25,6 @@ public class CameraController : MonoBehaviour {
 
 	private float yaw;
 	private float pitch;
-	private float currentHorizLookSpeed = 0f;
-	private float currentVertTurnSpeed = 0f;
-	private float horizAccZone;   // Value [-1, 0, 1] representing current zone [left, none, right]
-	private float vertAccZone;    // [down, none, up]
-	private float horizAccFactor; // Float [-1, 1] representing current acceleration factor
-	private float vertAccFactor;
 	private Transform cameraPivotTransform;
 	new private Camera camera;
 
@@ -60,8 +54,8 @@ public class CameraController : MonoBehaviour {
 		swayManager.updateSway(inputVector, inputRawX);
 	}
 
-	public void updateRunState(bool isReturningToWalk) {
-		zoomManager.updateRunState(isReturningToWalk, this);
+	public void beginRunFovAnimation(bool isBeginningRun) {
+		zoomManager.beginRunFovAnimation(isBeginningRun, this);
 	}
 
 
@@ -74,10 +68,6 @@ public class CameraController : MonoBehaviour {
 
 	private void initializeValues() {
 		yaw = transform.eulerAngles.y;
-		horizAccFactor = 0f;
-		horizAccZone = 0f;
-		vertAccFactor = 0f;
-		vertAccFactor = 0f;
 	}
 
 	private void initializeComponents() {

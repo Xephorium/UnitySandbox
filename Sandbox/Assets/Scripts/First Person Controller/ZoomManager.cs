@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using NaughtyAttributes;
 
@@ -55,8 +55,8 @@ public class ZoomManager {
 	private void invokeZoomRoutine(MonoBehaviour monoBehavior, bool isBeginningZoom) {
 
 		// Cancel Animations
-		if (runRoutine != null)monoBehavior.StopCoroutine(runRoutine);
-		if (zoomRoutine != null)monoBehavior.StopCoroutine(zoomRoutine);
+		if (runRoutine != null) monoBehavior.StopCoroutine(runRoutine);
+		if (zoomRoutine != null) monoBehavior.StopCoroutine(zoomRoutine);
 
 		zoomRoutine = ZoomRoutine(isBeginningZoom);
 		monoBehavior.StartCoroutine(zoomRoutine);
@@ -83,27 +83,27 @@ public class ZoomManager {
 
 	/*--- Run Methods ---*/
 
-	public void updateRunState(bool isReturningToWalk, MonoBehaviour monoBehavior) {
+	public void beginRunFovAnimation(bool isBeginningRun, MonoBehaviour monoBehavior) {
 
 		// Cancel Animations
 		if (zoomRoutine != null) monoBehavior.StopCoroutine(zoomRoutine);
 		if (runRoutine != null) monoBehavior.StopCoroutine(runRoutine);
 
-		runRoutine = RunRoutine(isReturningToWalk);
+		runRoutine = RunFovRoutine(isBeginningRun);
 		monoBehavior.StartCoroutine(runRoutine);
 	}
 
-	IEnumerator RunRoutine(bool isReturningToWalk) {
+	IEnumerator RunFovRoutine(bool isBeginningRun) {
 
 		// Setup Local Variables
 		float percent = 0f;
 		float smoothPercent = 0f;
-		float duration = isReturningToWalk ? firstPersonViewConfig.runReturnTransitionDuration
-										   : firstPersonViewConfig.runTransitionDuration;
+		float duration = isBeginningRun ? firstPersonViewConfig.runTransitionDuration
+									 : firstPersonViewConfig.runReturnTransitionDuration;
 		float speed = 1f / duration;
 		float currentFov = camera.fieldOfView;
-		float targetFov = isReturningToWalk ? firstPersonViewConfig.defaultFOV : firstPersonViewConfig.runFOV;
-		isRunning = !isReturningToWalk;
+		float targetFov = isBeginningRun ? firstPersonViewConfig.runFOV : firstPersonViewConfig.defaultFOV;
+		isRunning = isBeginningRun;
 
 		// Animate Run
 		while (percent < 1f) {
