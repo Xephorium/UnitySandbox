@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: FirstPersonViewConfig
   m_EditorClassIdentifier: 
   defaultFOV: 80
+  verticalAngleClamp: {x: -90, y: 90}
   lookSensitivityMouse: {x: 1.5, y: 1.5}
   lookSensitivityStick: {x: 1.52, y: 1.52}
   stickLookAcceleration:
@@ -21,24 +22,52 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0.18710136
-      outSlope: 0.18710136
+      inSlope: -0
+      outSlope: -0
       tangentMode: 0
       weightedMode: 2
       inWeight: 0
-      outWeight: 0.69166666
+      outWeight: 0.5625
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 2.8235292
-      outSlope: 2.8235292
+      inSlope: 27.670618
+      outSlope: 27.670618
       tangentMode: 0
       weightedMode: 1
-      inWeight: 0.0625
+      inWeight: 0.008333325
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  stickTurnThreshold: 0.97
+  stickTurnFalloffAngle: 67.5
+  stickTurnFalloff:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 87.81176
+      outSlope: 87.81176
+      tangentMode: 0
+      weightedMode: 2
+      inWeight: 0
+      outWeight: 0.008333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: -0
+      outSlope: -0
+      tangentMode: 0
+      weightedMode: 1
+      inWeight: 0.5416666
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  stickTurnAccelerationLength: 0.8
+  stickTurnAccelerationStrength: 2
   stickTurnAcceleration:
     serializedVersion: 2
     m_Curve:
@@ -64,7 +93,6 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   stickLookDriftThreshold: 0.05
-  verticalAngleClamp: {x: -90, y: 90}
   runFOV: 90
   runCurve:
     serializedVersion: 2
