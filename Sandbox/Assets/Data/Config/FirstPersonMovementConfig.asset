@@ -15,7 +15,7 @@ MonoBehaviour:
   crouchSpeed: 4
   walkSpeed: 7
   runSpeed: 9
-  jumpSpeed: 12
+  jumpSpeed: 16
   moveBackwardsSpeedPercent: 1
   moveSideSpeedPercent: 1
   gravityMultiplier: 2.5
@@ -108,7 +108,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  stickToGroundForce: 1
+  stickToGroundForce: 4
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
