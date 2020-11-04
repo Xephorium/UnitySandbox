@@ -22,8 +22,6 @@ public class FirstPersonController : MonoBehaviour {
     private IEnumerator crouchRoutine;
     private IEnumerator landRoutine;
 
-    private bool isPlayerRunning = false;
-
     [SerializeField][ShowIf("NeverShow")] private Vector2 moveInputVector;
 
     [SerializeField][ShowIf("NeverShow")] private Vector3 finalMoveDirection;
@@ -48,8 +46,9 @@ public class FirstPersonController : MonoBehaviour {
     [SerializeField][ShowIf("NeverShow")] private float baseCameraHeight;
     [SerializeField][ShowIf("NeverShow")] private float crouchCameraHeight;
     [SerializeField][ShowIf("NeverShow")] private float heightDifferenceStandCrouch;
+    [SerializeField][ShowIf("NeverShow")] private bool isRunning;
+    [SerializeField][ShowIf("NeverShow")] private bool isCrouching;
     [SerializeField][ShowIf("NeverShow")] private bool isAnimatingCrouch;
-    [SerializeField][ShowIf("NeverShow")] private bool isAnimatingRun;
 
     [SerializeField][ShowIf("NeverShow")] private float timeInAir;
 
@@ -68,7 +67,7 @@ public class FirstPersonController : MonoBehaviour {
 
             // Contact Check
             checkIfTouchingGround();
-            checkIfTouchingWall();
+            checkIfMovingTowardWall();
 
             // Smoothing Calculations
             smoothMovementSpeed();
@@ -80,11 +79,11 @@ public class FirstPersonController : MonoBehaviour {
             calculateFinalMovementVector();
 
             // Movement Updates
+            updateLandState();
             updateCrouchState();
             updateRunState();
             handleHeadBob();
             handleCameraSway();
-            handleLanding();
 
             applyGravity();
             applyMovement();
@@ -134,6 +133,8 @@ public class FirstPersonController : MonoBehaviour {
 
         isTouchingGround = true;
         wasPreviouslyTouchingGround = true;
+        isRunning = false;
+        isCrouching = false;
 
         timeInAir = 0f;
         headBobManager.currentBaseHeight = baseCameraHeight;
@@ -147,7 +148,7 @@ public class FirstPersonController : MonoBehaviour {
     protected virtual void smoothMovementSpeed() {
         smoothCurrentSpeed = Mathf.Lerp(smoothCurrentSpeed, currentSpeed, Time.deltaTime * firstPersonMovementConfig.smoothVelocitySpeed);
 
-        if (isPlayerRunning) {
+        if (isRunning) {
             float _walkRunPercent = Mathf.InverseLerp(firstPersonMovementConfig.walkSpeed, firstPersonMovementConfig.runSpeed, smoothCurrentSpeed);
             smoothFinalCurrentSpeed = firstPersonMovementConfig.runTransitionCurve.Evaluate(_walkRunPercent) * speedDifferenceWalkRun + firstPersonMovementConfig.walkSpeed;
         } else {
@@ -156,9 +157,8 @@ public class FirstPersonController : MonoBehaviour {
     }
 
     protected virtual void smoothMovementDirection() {
-
         smoothFinalMoveDirection = Vector3.Lerp(smoothFinalMoveDirection, finalMoveDirection, Time.deltaTime * firstPersonMovementConfig.smoothFinalDirectionSpeed);
-        Debug.DrawRay(transform.position, smoothFinalMoveDirection, Color.yellow);
+        //Debug.DrawRay(transform.position, smoothFinalMoveDirection, Color.yellow);
     }
 
 
@@ -167,7 +167,7 @@ public class FirstPersonController : MonoBehaviour {
     protected virtual void checkIfTouchingGround() {
         Vector3 origin = transform.position + characterController.center;
 
-        bool hitGround = Physics.SphereCast(
+        bool groundCheck = Physics.SphereCast(
             origin,
             firstPersonMovementConfig.raySphereRadius,
             Vector3.down,
@@ -177,42 +177,52 @@ public class FirstPersonController : MonoBehaviour {
         );
         //Debug.DrawRay(origin, Vector3.down * (finalRayLength), Color.red);
 
-        isTouchingGround = hitGround;
+        isTouchingGround = groundCheck;
     }
 
-    protected virtual void checkIfTouchingWall() { // TODO - Fix. Does not prevent head bob.
-
-        Vector3 origin = transform.position + characterController.center;
+    /* Note: Performs three sphere casts from player's horizontal center in the forward
+     *       direction to check for wall collisions. This approach is pretty hacky and
+     *       could benefit from a single-check replacement when I figure out why
+     *       Physics.CheckCapsule doesn't work the way I'd expect.
+     */
+    protected virtual void checkIfMovingTowardWall() {
         RaycastHit raycastHit;
-
         bool hitWall = false;
 
-        if (moveInputState.hasInput && finalMoveDirection.sqrMagnitude > 0)
-            hitWall = Physics.SphereCast(
-                origin,
-                firstPersonMovementConfig.rayObstacleSphereRadius,
-                finalMoveDirection, out raycastHit,
+        if (moveInputState.hasInput && finalMoveDirection.sqrMagnitude > 0) {
+
+        	// Check Ahead of Feet
+        	hitWall = Physics.SphereCast(
+                transform.position + new Vector3(0f, characterController.radius, 0f),
+                characterController.radius,
+                finalMoveDirection,
+                out raycastHit,
                 firstPersonMovementConfig.rayObstacleLength,
                 firstPersonMovementConfig.obstacleLayers
-            );
-        //Debug.DrawRay(origin, finalMoveDirection * firstPersonMovementConfig.rayObstacleLength, Color.blue);
+            ) ? true : hitWall;
 
-        isTouchingWall = hitWall;
-    }
+        	// Check Ahead of Core
+        	hitWall = Physics.SphereCast(
+                transform.position + characterController.center,
+                characterController.radius,
+                finalMoveDirection,
+                out raycastHit,
+                firstPersonMovementConfig.rayObstacleLength,
+                firstPersonMovementConfig.obstacleLayers
+            ) ? true : hitWall;
 
-    protected virtual bool checkIfRoofDirectlyAbove() { // TODO - Fix. Does not accurately detect roof collision.
-        Vector3 origin = transform.position;
-        RaycastHit raycastHit;
+            // Check Ahead of Head
+            hitWall = Physics.SphereCast(
+                transform.position + new Vector3(0f, (isCrouching ? crouchHeight : baseHeight), 0f) - new Vector3(0f, characterController.radius, 0f),
+                characterController.radius,
+                finalMoveDirection,
+                out raycastHit,
+                firstPersonMovementConfig.rayObstacleLength,
+                firstPersonMovementConfig.obstacleLayers
+            ) ? true : hitWall;
+    	}
 
-        bool hitRoof = Physics.SphereCast(
-            origin,
-            firstPersonMovementConfig.raySphereRadius,
-            Vector3.up,
-            out raycastHit,
-            baseHeight
-        );
-
-        return false; // hitRoof;
+    	isTouchingWall = hitWall;
     }
 
     protected virtual void calculateMovementDirection() {
@@ -234,8 +244,8 @@ public class FirstPersonController : MonoBehaviour {
     }
 
     protected virtual void calculateMovementSpeed() {
-        currentSpeed = isPlayerRunning ? firstPersonMovementConfig.runSpeed : firstPersonMovementConfig.walkSpeed;
-        currentSpeed = moveInputState.isCrouching ? firstPersonMovementConfig.crouchSpeed : currentSpeed;
+        currentSpeed = isRunning ? firstPersonMovementConfig.runSpeed : firstPersonMovementConfig.walkSpeed;
+        currentSpeed = isCrouching ? firstPersonMovementConfig.crouchSpeed : currentSpeed;
         currentSpeed = !moveInputState.hasInput ? 0f : currentSpeed;
         currentSpeed = moveInputState.inputVector.y == -1 ? currentSpeed * firstPersonMovementConfig.moveBackwardsSpeedPercent : currentSpeed;
         currentSpeed = moveInputState.inputVector.x != 0 && moveInputState.inputVector.y ==  0 ? currentSpeed * firstPersonMovementConfig.moveSideSpeedPercent :  currentSpeed;
@@ -257,28 +267,27 @@ public class FirstPersonController : MonoBehaviour {
     /*--- Crouch Methods ---*/
 
     protected virtual void updateCrouchState() {
+    	canStand();
 
         // Begin Crouch
-        if (moveInputState.isCrouchClicked && !moveInputState.isCrouching && isTouchingGround) {
+        if (!isCrouching && moveInputState.isCrouchClicked && isTouchingGround) {
             moveInputState.isCrouchClicked = false;
-            moveInputState.isCrouching = true;
-            invokeCrouchRoutine(true);
+            isCrouching = true;
+            beginCrouchAnimation(true);
 
         // Return From Crouch
-        } else if (moveInputState.isCrouchReleased && moveInputState.isCrouching && !checkIfRoofDirectlyAbove()) {
+        } else if (isCrouching && moveInputState.isCrouchReleased && !canStand()) {
             moveInputState.isCrouchReleased = false;
-            moveInputState.isCrouching = false;
-            invokeCrouchRoutine(false);
+            isCrouching = false;
+            beginCrouchAnimation(false);
         }
     }
 
-    protected virtual void invokeCrouchRoutine(bool isBeginningCrouch) {
+    protected virtual void beginCrouchAnimation(bool isBeginningCrouch) {
         
         // Cancel Movement Animations
-        if (landRoutine != null)
-            StopCoroutine(landRoutine);
-        if (crouchRoutine != null)
-            StopCoroutine(crouchRoutine);
+        if (landRoutine != null) StopCoroutine(landRoutine);
+        if (crouchRoutine != null) StopCoroutine(crouchRoutine);
 
         crouchRoutine = CrouchRoutine(isBeginningCrouch);
         StartCoroutine(crouchRoutine);
@@ -319,34 +328,55 @@ public class FirstPersonController : MonoBehaviour {
         isAnimatingCrouch = false;
     }
 
+    protected virtual bool canStand() {
+
+    	// Setup Local Variables
+    	float verticalCastOffset = baseHeight / 2f; // Begin cast at 1/2 player height to avoid hitting floor
+    	Vector3 raycastStart = transform.position + new Vector3(0f, verticalCastOffset, 0f);
+    	float sphereRadius = characterController.radius;
+    	Vector3 raycastDirection = Vector3.up;
+        RaycastHit raycastInfo;
+        float raycastLength = baseHeight - verticalCastOffset;
+
+        // Check for Collisions at Player Height
+        return Physics.SphereCast(
+            raycastStart,
+            sphereRadius,
+            raycastDirection,
+            out raycastInfo,
+            raycastLength
+        );
+    }
+
 
     /*--- Landing Methods ---*/
 
-    protected virtual void handleLanding() {
+    protected virtual void updateLandState() {
         if (!wasPreviouslyTouchingGround && isTouchingGround) {
-            invokeLandingRoutine();
+            beginLandAnimation();
         }
     }
 
-    protected virtual void invokeLandingRoutine() {
-        if (landRoutine != null)
-            StopCoroutine(landRoutine);
+    protected virtual void beginLandAnimation() {
+        if (landRoutine != null) StopCoroutine(landRoutine);
 
-        landRoutine = LandingRoutine();
+        landRoutine = LandRoutine();
         StartCoroutine(landRoutine);
     }
 
-    protected virtual IEnumerator LandingRoutine() {
+    protected virtual IEnumerator LandRoutine() {
+
+    	// Setup Local Variables
         float percent = 0f;
         float landAmount = 0f;
-
         float speed = 1f / firstPersonMovementConfig.landDuration;
-
         Vector3 localPosition = transformYaw.localPosition;
         float initialLandHeight = localPosition.y;
 
+        // Calculate Land Amount
         landAmount = timeInAir > firstPersonMovementConfig.landTimer ? firstPersonMovementConfig.highLandAmount : firstPersonMovementConfig.lowLandAmount;
 
+        // Animate Landing
         while (percent < 1f) {
             percent += Time.deltaTime * speed;
             float desiredY = firstPersonMovementConfig.landCurve.Evaluate(percent) * landAmount;
@@ -366,14 +396,14 @@ public class FirstPersonController : MonoBehaviour {
                && isRunDirectionValid()
                && isTouchingGround
                && !isTouchingWall
-               && !moveInputState.isCrouching;
+               && !isCrouching;
     }
 
     protected virtual bool canContinueRun() {
         return moveInputState.inputVector.y > firstPersonMovementConfig.runInputThreshold
                && isRunDirectionValid()
                && !isTouchingWall
-               && !moveInputState.isCrouching;
+               && !isCrouching;
     }
 
     /* Note: Calculates the portion of movement facing the same direction as the player.
@@ -395,7 +425,7 @@ public class FirstPersonController : MonoBehaviour {
     protected virtual void handleHeadBob() {
         if (moveInputState.hasInput && isTouchingGround  && !isTouchingWall) {
             if (!isAnimatingCrouch) { // we want to make our head bob only if we are moving and not during crouch routine
-                headBobManager.updateHeadBob(isPlayerRunning, moveInputState.isCrouching, moveInputState.inputVector);
+                headBobManager.updateHeadBob(isRunning, isCrouching, moveInputState.inputVector);
                 transformYaw.localPosition = Vector3.Lerp(transformYaw.localPosition, (Vector3.up * headBobManager.currentBaseHeight) + headBobManager.currentPositionOffset, Time.deltaTime * firstPersonMovementConfig.smoothHeadBobSpeed);
             }
         } else { // if we are not moving or we are not grounded
@@ -411,19 +441,19 @@ public class FirstPersonController : MonoBehaviour {
     }
 
     protected virtual void updateRunState() {
-        if (!isPlayerRunning && moveInputState.isRunClicked && canBeginRun()) {
+        if (!isRunning && moveInputState.isRunClicked && canBeginRun()) {
 
             // Begin Running
             moveInputState.isRunClicked = false;
-            isPlayerRunning = true;
+            isRunning = true;
             cameraController.beginRunFovAnimation(true);
 
-        } else if (isPlayerRunning && (!canContinueRun() || moveInputState.isRunReleased)) {
+        } else if (isRunning && (!canContinueRun() || moveInputState.isRunReleased)) {
 
             // End Running
             moveInputState.isRunClicked = false;
             moveInputState.isRunClicked = false;
-            isPlayerRunning = false;
+            isRunning = false;
             cameraController.beginRunFovAnimation(false);
         }
 
@@ -435,7 +465,7 @@ public class FirstPersonController : MonoBehaviour {
     }
 
     protected virtual void handleJump() {
-        if (moveInputState.isJumpClicked && !moveInputState.isCrouching) {
+        if (moveInputState.isJumpClicked && !isCrouching) {
             finalMoveVector.y += firstPersonMovementConfig.jumpSpeed /* currentSpeed */; // we are adding because ex. when we are going on slope we want to keep Y value not overwriting it
             //finalMoveVector.y = firstPersonMovementConfig.jumpSpeed /* currentSpeed */; // turns out that when adding to Y it is too much and it doesn't feel correct because jumping on slope is much faster and higher;
 

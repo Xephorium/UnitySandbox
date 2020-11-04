@@ -35,13 +35,13 @@ public class ZoomManager {
 		if (lookInputState.isZoomClicked && !lookInputState.isZooming && !isRunning) {
 			lookInputState.isZooming = true;
 			lookInputState.isZoomClicked = false;
-			invokeZoomRoutine(monoBehavior, true);
+			beginZoomFovAnimation(monoBehavior, true);
 
 		// Return From Zoom
 		} else if (lookInputState.isZooming && (lookInputState.isZoomReleased || isRunning)) {
 			lookInputState.isZooming = false;
 			lookInputState.isZoomReleased = false;
-			invokeZoomRoutine(monoBehavior, false);
+			beginZoomFovAnimation(monoBehavior, false);
 
 		}
 
@@ -52,17 +52,17 @@ public class ZoomManager {
 		}
 	}
 
-	private void invokeZoomRoutine(MonoBehaviour monoBehavior, bool isBeginningZoom) {
+	private void beginZoomFovAnimation(MonoBehaviour monoBehavior, bool isBeginningZoom) {
 
 		// Cancel Animations
 		if (runRoutine != null) monoBehavior.StopCoroutine(runRoutine);
 		if (zoomRoutine != null) monoBehavior.StopCoroutine(zoomRoutine);
 
-		zoomRoutine = ZoomRoutine(isBeginningZoom);
+		zoomRoutine = ZoomFovRoutine(isBeginningZoom);
 		monoBehavior.StartCoroutine(zoomRoutine);
 	}
 
-	IEnumerator ZoomRoutine(bool isBeginningZoom) {
+	IEnumerator ZoomFovRoutine(bool isBeginningZoom) {
 
 		// Setup Local Variables
 		float percent = 0f;
