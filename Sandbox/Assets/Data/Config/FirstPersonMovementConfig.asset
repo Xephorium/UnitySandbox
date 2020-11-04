@@ -15,7 +15,7 @@ MonoBehaviour:
   crouchSpeed: 4
   walkSpeed: 7
   runSpeed: 9
-  jumpSpeed: 16
+  jumpSpeed: 15.2
   moveBackwardsSpeedPercent: 1
   moveSideSpeedPercent: 1
   gravityMultiplier: 2.5
