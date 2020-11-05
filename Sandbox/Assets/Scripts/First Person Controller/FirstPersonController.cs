@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using NaughtyAttributes;
 
@@ -69,6 +69,8 @@ public class FirstPersonController : MonoBehaviour {
             updateGroundCheck();
             updateWallCheck();
 
+            updateLandState(); // TODO - Refactor in some sensible way
+
             // Update Player Movement
             calculateDesiredMoveSpeed();
             calculateDesiredMoveDirection();
@@ -78,7 +80,7 @@ public class FirstPersonController : MonoBehaviour {
             movePlayer();
 
             // Update Player Animation
-            updateLandState();
+            //updateLandState();
             updateCrouchState();
             updateRunState();
             updateHeadBob();
@@ -130,6 +132,15 @@ public class FirstPersonController : MonoBehaviour {
         firstPersonState.wasTouchingGround = firstPersonState.isTouchingGround;
         firstPersonState.isTouchingGround = characterController.isGrounded;
         firstPersonState.isGroundBeneath = checkForGroundBeneath();
+
+        // Set Move Direction to Momentum Vector
+        // TODO - Move to somewhere more sensible
+        if (!firstPersonState.wasTouchingGround && firstPersonState.isTouchingGround) {
+            smoothedMoveDirection = smoothedMoveDirection * Vector3.Dot(
+                momentumDirection.normalized * smoothedMoveDirection.magnitude,
+                smoothedMoveDirection
+            );
+        }
     }
 
     /* Note: This method is distinct from characterController.isGrounded in that
@@ -341,8 +352,10 @@ public class FirstPersonController : MonoBehaviour {
 
     protected virtual void updateLandState() {
         if (!firstPersonState.wasTouchingGround && firstPersonState.isTouchingGround) {
-
+            Debug.Log("true");
             beginLandAnimation();
+        } else {
+            Debug.Log("false");
         }
     }
 
