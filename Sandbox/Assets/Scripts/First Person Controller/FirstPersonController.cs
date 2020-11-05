@@ -135,12 +135,12 @@ public class FirstPersonController : MonoBehaviour {
 
         // Set Move Direction to Momentum Vector
         // TODO - Move to somewhere more sensible
-        if (!firstPersonState.wasTouchingGround && firstPersonState.isTouchingGround) {
-            smoothedMoveDirection = smoothedMoveDirection * Vector3.Dot(
-                momentumDirection.normalized * smoothedMoveDirection.magnitude,
-                smoothedMoveDirection
-            );
-        }
+        // if (!firstPersonState.wasTouchingGround && firstPersonState.isTouchingGround) {
+        //     smoothedMoveDirection = smoothedMoveDirection * Vector3.Dot(
+        //         momentumDirection.normalized * smoothedMoveDirection.magnitude,
+        //         smoothedMoveDirection
+        //     );
+        // }
     }
 
     /* Note: This method is distinct from characterController.isGrounded in that
@@ -228,7 +228,7 @@ public class FirstPersonController : MonoBehaviour {
         Vector3 horizontalDirection = transform.right * moveInputState.inputVector.x;
 
         Vector3 desiredDirection = verticalDirection + horizontalDirection;
-        if (firstPersonState.isTouchingGround) desiredDirection = flattenVectorOnSlopes(desiredDirection);
+        desiredDirection = flattenVectorOnSlopes(desiredDirection);
 
         desiredMoveDirection = desiredDirection;
     }
@@ -263,9 +263,6 @@ public class FirstPersonController : MonoBehaviour {
 
             finalMoveSpeed = smoothedMoveSpeed;
         }
-
-        // Account for Fall Momentum
-        if (!firstPersonState.isTouchingGround) finalMoveSpeed = smoothedMoveSpeed;
     }
 
     protected virtual void calculateFinalMoveDirection() {
@@ -276,7 +273,7 @@ public class FirstPersonController : MonoBehaviour {
             desiredMoveDirection,
             Time.deltaTime * firstPersonMovementConfig.smoothFinalDirectionSpeed
         );
-        Debug.DrawRay(transform.position, smoothedMoveDirection, Color.yellow);
+        Debug.DrawRay(transform.position, desiredMoveDirection, Color.yellow);
 
         float driftMaxSpeed = 5f;
         float driftChangeRate = 0.1f;
@@ -316,11 +313,12 @@ public class FirstPersonController : MonoBehaviour {
     }
 
     protected virtual void calculateVerticalMovement() {
+        //Debug.Log("Test 0");
         if (firstPersonState.isTouchingGround) {
 
             // Update State Variables
             firstPersonState.timeInAir = 0f;
-            momentumDirection = new Vector3(0f, 0f, 0f);
+            //momentumDirection = new Vector3(0f, 0f, 0f); // TODO - Find a better place for this :#
             finalMoveDirection.y = -firstPersonMovementConfig.stickToGroundForce;
 
             // Handle Jump
@@ -333,7 +331,7 @@ public class FirstPersonController : MonoBehaviour {
         } else {
 
             // Set Momentum Direction
-            if (!firstPersonState.isTouchingGround && firstPersonState.wasTouchingGround) {
+            if (firstPersonState.wasTouchingGround) {
                 momentumDirection = new Vector3(finalMoveDirection.x, 0f, finalMoveDirection.z);
             }
 
@@ -352,10 +350,7 @@ public class FirstPersonController : MonoBehaviour {
 
     protected virtual void updateLandState() {
         if (!firstPersonState.wasTouchingGround && firstPersonState.isTouchingGround) {
-            Debug.Log("true");
             beginLandAnimation();
-        } else {
-            Debug.Log("false");
         }
     }
 
