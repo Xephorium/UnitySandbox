@@ -2,44 +2,51 @@
 using UnityEngine;
 using NaughtyAttributes;
 
+/* TODO:
+ *   - Identify & fix weird canRun() behavior after crouch.
+ *   - Fix slope running.
+ *   - Add player momentum.
+ */
+
 [RequireComponent(typeof(CharacterController))]
 public class FirstPersonController : MonoBehaviour {
 
 
     /*--- Variables ---*/
 
-    [SerializeField] private MoveInputState moveInputState = null;
+	// Data Assets
     [SerializeField] private FirstPersonViewConfig firstPersonViewConfig = null;
     [SerializeField] private FirstPersonMovementConfig firstPersonMovementConfig = null;
+    [SerializeField] private MoveInputState moveInputState = null;
     [SerializeField] private FirstPersonState firstPersonState = null;
 
+    // Components & Subclasses
     private CharacterController characterController;
-    private Transform transformYaw;
+    private Transform transformCameraHolder;
     private Transform transformCamera;
     private HeadBobManager headBobManager;
     private CameraController cameraController;
 
+    // Raycast & Routine Objects
     private RaycastHit groundRaycastInfo;
-
     private IEnumerator crouchRoutine;
     private IEnumerator landRoutine;
 
-    [SerializeField][ShowIf("NeverShow")] private Vector2 moveInputVector;
-
-    [SerializeField][ShowIf("NeverShow")] private Vector3 finalMoveDirection;
-    [SerializeField][ShowIf("NeverShow")] private Vector3 smoothFinalMoveDirection;
-    [SerializeField][ShowIf("NeverShow")] private Vector3 finalMoveVector;
-
-    [SerializeField][ShowIf("NeverShow")] private float currentSpeed;
-    [SerializeField][ShowIf("NeverShow")] private float smoothCurrentSpeed;
-    [SerializeField][ShowIf("NeverShow")] private float smoothFinalCurrentSpeed;
-
+    // Player Height Fields
     [SerializeField][ShowIf("NeverShow")] private float baseHeight;
     [SerializeField][ShowIf("NeverShow")] private float crouchHeight;
     [SerializeField][ShowIf("NeverShow")] private Vector3 baseCenter;
     [SerializeField][ShowIf("NeverShow")] private Vector3 crouchCenter;
     [SerializeField][ShowIf("NeverShow")] private float baseCameraHeight;
     [SerializeField][ShowIf("NeverShow")] private float crouchCameraHeight;
+
+    // Player Movement Fields
+    [SerializeField][ShowIf("NeverShow")] private float desiredMoveSpeed;
+    [SerializeField][ShowIf("NeverShow")] private float smoothedMoveSpeed;
+    [SerializeField][ShowIf("NeverShow")] private float finalMoveSpeed;
+    [SerializeField][ShowIf("NeverShow")] private Vector3 desiredMoveDirection;
+    [SerializeField][ShowIf("NeverShow")] private Vector3 smoothedMoveDirection;
+    [SerializeField][ShowIf("NeverShow")] private Vector3 finalMoveDirection;
 
 
     /*--- Lifecycle Methods ---*/
@@ -50,34 +57,28 @@ public class FirstPersonController : MonoBehaviour {
     }
 
     protected virtual void Update() {
-        if (transformYaw != null) rotateTowardsCamera();
+        updateComponents();
 
         if (characterController) {
 
-            // Contact Check
+            // Update Contact Checks
             updateGroundCheck();
             updateWallCheck();
 
-            // Smoothing Calculations
-            smoothMovementSpeed();
-            smoothMovementDirection();
+            // Update Player Movement
+            calculateDesiredMoveSpeed();
+            calculateDesiredMoveDirection();
+            calculateFinalMoveSpeed();
+            calculateFinalMoveDirection();
+            calculateVerticalMovement();
+            movePlayer();
 
-            // Movement Calculations
-            calculateMovementDirection();
-            calculateMovementSpeed();
-            calculateFinalMovementVector();
-
-            // Movement Updates
+            // Update Player Animation
             updateLandState();
             updateCrouchState();
             updateRunState();
             updateHeadBob();
             updateCameraSway();
-
-            applyGravity();
-            applyMovement();
-
-            firstPersonState.wasTouchingGround = firstPersonState.isTouchingGround;
         }
     }
 
@@ -87,7 +88,7 @@ public class FirstPersonController : MonoBehaviour {
     protected virtual void getComponents() {
         characterController = GetComponent<CharacterController>();
         cameraController = GetComponentInChildren<CameraController>();
-        transformYaw = cameraController.transform;
+        transformCameraHolder = cameraController.transform;
         transformCamera = GetComponentInChildren<Camera>().transform;
         headBobManager = new HeadBobManager(
         	firstPersonViewConfig,
@@ -97,31 +98,34 @@ public class FirstPersonController : MonoBehaviour {
     }
 
     protected virtual void initializeVariables() {
-        // Calculate where our character center should be based on height and skin width
-        characterController.center = new Vector3(0f, characterController.height / 2f + characterController.skinWidth, 0f);
+        moveInputState.resetInput();
+        firstPersonState.resetState();
 
-        baseCenter = characterController.center;
-        baseHeight = characterController.height;
-
+       	baseHeight = characterController.height;
         crouchHeight = baseHeight * firstPersonMovementConfig.crouchPercent;
+        baseCenter = new Vector3(0f, characterController.height / 2f + characterController.skinWidth, 0f);
         crouchCenter = (crouchHeight / 2f + characterController.skinWidth) * Vector3.up;
-
-        baseCameraHeight = transformYaw.localPosition.y;
+        baseCameraHeight = transformCameraHolder.localPosition.y;
         crouchCameraHeight = baseCameraHeight - (baseHeight - crouchHeight);
 
-        firstPersonState.isTouchingGround = true;
-        firstPersonState.wasTouchingGround = true;
-        firstPersonState.isRunning = false;
-        firstPersonState.isCrouching = false;
-
-        firstPersonState.timeInAir = 0f;
+        characterController.center = baseCenter;
         headBobManager.currentBaseHeight = baseCameraHeight;
+    }
+
+
+    /*--- Component Update Method ---*/
+
+    protected virtual void updateComponents() {
+        if (transformCameraHolder != null) transform.rotation = transformCameraHolder.rotation;
     }
 
 
     /*--- Contact Check Methods ---*/
 
     protected virtual void updateGroundCheck() {
+
+        // Record Last State
+        firstPersonState.wasTouchingGround = firstPersonState.isTouchingGround;
 
     	// Setup Local Variables
 		Vector3 raycastStart = transform.position + characterController.center;
@@ -149,13 +153,13 @@ public class FirstPersonController : MonoBehaviour {
         RaycastHit raycastInfo;
         bool wallCheck = false;
 
-        if (moveInputState.hasInput && finalMoveDirection.sqrMagnitude > 0) {
+        if (moveInputState.hasInput && desiredMoveDirection.sqrMagnitude > 0) {
 
         	// Check Ahead of Feet
         	wallCheck = Physics.SphereCast(
                 transform.position + new Vector3(0f, characterController.radius, 0f),
                 characterController.radius,
-                finalMoveDirection,
+                desiredMoveDirection,
                 out raycastInfo,
                 firstPersonMovementConfig.rayObstacleLength,
                 firstPersonMovementConfig.obstacleLayers
@@ -165,7 +169,7 @@ public class FirstPersonController : MonoBehaviour {
         	wallCheck = Physics.SphereCast(
                 transform.position + characterController.center,
                 characterController.radius,
-                finalMoveDirection,
+                desiredMoveDirection,
                 out raycastInfo,
                 firstPersonMovementConfig.rayObstacleLength,
                 firstPersonMovementConfig.obstacleLayers
@@ -175,7 +179,7 @@ public class FirstPersonController : MonoBehaviour {
             wallCheck = Physics.SphereCast(
                 transform.position + new Vector3(0f, (firstPersonState.isCrouching ? crouchHeight : baseHeight), 0f) - new Vector3(0f, characterController.radius, 0f),
                 characterController.radius,
-                finalMoveDirection,
+                desiredMoveDirection,
                 out raycastInfo,
                 firstPersonMovementConfig.rayObstacleLength,
                 firstPersonMovementConfig.obstacleLayers
@@ -186,42 +190,24 @@ public class FirstPersonController : MonoBehaviour {
     }
 
 
-    /*--- Smoothing Methods ---*/
-
-    protected virtual void smoothMovementSpeed() {
-    	float speedDifferenceWalkRun = firstPersonMovementConfig.runSpeed - firstPersonMovementConfig.walkSpeed;
-        smoothCurrentSpeed = Mathf.Lerp(
-        	smoothCurrentSpeed,
-        	currentSpeed,
-        	firstPersonMovementConfig.smoothVelocitySpeed * Time.deltaTime
-        );
-
-        if (firstPersonState.isRunning) {
-            float _walkRunPercent = Mathf.InverseLerp(firstPersonMovementConfig.walkSpeed, firstPersonMovementConfig.runSpeed, smoothCurrentSpeed);
-            smoothFinalCurrentSpeed = firstPersonMovementConfig.runTransitionCurve.Evaluate(_walkRunPercent) * speedDifferenceWalkRun + firstPersonMovementConfig.walkSpeed;
-        } else {
-            smoothFinalCurrentSpeed = smoothCurrentSpeed;
-        }
-    }
-
-    protected virtual void smoothMovementDirection() {
-        smoothFinalMoveDirection = Vector3.Lerp(smoothFinalMoveDirection, finalMoveDirection, Time.deltaTime * firstPersonMovementConfig.smoothFinalDirectionSpeed);
-        //Debug.DrawRay(transform.position, smoothFinalMoveDirection, Color.yellow);
-    }
-
-
     /*--- Movement Calculation Methods ---*/
 
-    protected virtual void calculateMovementDirection() {
-        moveInputVector = moveInputState.inputVector;
+    protected virtual void calculateDesiredMoveSpeed() {
+        desiredMoveSpeed = firstPersonState.isRunning ? firstPersonMovementConfig.runSpeed : firstPersonMovementConfig.walkSpeed;
+        desiredMoveSpeed = firstPersonState.isCrouching ? firstPersonMovementConfig.crouchSpeed : desiredMoveSpeed;
+        desiredMoveSpeed = !moveInputState.hasInput ? 0f : desiredMoveSpeed;
+        desiredMoveSpeed = moveInputState.inputVector.y == -1 ? desiredMoveSpeed * firstPersonMovementConfig.moveBackwardsSpeedPercent : desiredMoveSpeed;
+        desiredMoveSpeed = moveInputState.inputVector.x != 0 && moveInputState.inputVector.y ==  0 ? desiredMoveSpeed * firstPersonMovementConfig.moveSideSpeedPercent :  desiredMoveSpeed;
+    }
 
-        Vector3 verticalDirection = transform.forward * moveInputVector.y;
-        Vector3 horizontalDirection = transform.right * moveInputVector.x;
+    protected virtual void calculateDesiredMoveDirection() {
+        Vector3 verticalDirection = transform.forward * moveInputState.inputVector.y;
+        Vector3 horizontalDirection = transform.right * moveInputState.inputVector.x;
 
         Vector3 desiredDirection = verticalDirection + horizontalDirection;
         Vector3 flattenedDirection = flattenVectorOnSlopes(desiredDirection);
 
-        finalMoveDirection = flattenedDirection;
+        desiredMoveDirection = flattenedDirection;
     }
 
     protected virtual Vector3 flattenVectorOnSlopes(Vector3 vector) {
@@ -230,24 +216,75 @@ public class FirstPersonController : MonoBehaviour {
         return vector;
     }
 
-    protected virtual void calculateMovementSpeed() {
-        currentSpeed = firstPersonState.isRunning ? firstPersonMovementConfig.runSpeed : firstPersonMovementConfig.walkSpeed;
-        currentSpeed = firstPersonState.isCrouching ? firstPersonMovementConfig.crouchSpeed : currentSpeed;
-        currentSpeed = !moveInputState.hasInput ? 0f : currentSpeed;
-        currentSpeed = moveInputState.inputVector.y == -1 ? currentSpeed * firstPersonMovementConfig.moveBackwardsSpeedPercent : currentSpeed;
-        currentSpeed = moveInputState.inputVector.x != 0 && moveInputState.inputVector.y ==  0 ? currentSpeed * firstPersonMovementConfig.moveSideSpeedPercent :  currentSpeed;
+    protected virtual void calculateFinalMoveSpeed() {
+
+        // Update Smoothed Speed
+        smoothedMoveSpeed = Mathf.Lerp(
+            smoothedMoveSpeed,
+            desiredMoveSpeed,
+            firstPersonMovementConfig.smoothVelocitySpeed * Time.deltaTime
+        );
+
+        // Calculate Final Speed
+        if (firstPersonState.isRunning) {
+            float speedDifferenceWalkRun = firstPersonMovementConfig.runSpeed - firstPersonMovementConfig.walkSpeed;
+            float walkRunPercent = Mathf.InverseLerp(
+                firstPersonMovementConfig.walkSpeed,
+                firstPersonMovementConfig.runSpeed,
+                smoothedMoveSpeed
+            );
+
+            finalMoveSpeed = firstPersonMovementConfig.runTransitionCurve.Evaluate(walkRunPercent) * speedDifferenceWalkRun + firstPersonMovementConfig.walkSpeed;
+        
+        } else {
+
+            finalMoveSpeed = smoothedMoveSpeed;
+        }
     }
 
-    protected virtual void calculateFinalMovementVector() {
-        float smoothInputVectorMagnitude = 1f;
-        Vector3 finalVector = smoothFinalMoveDirection * smoothFinalCurrentSpeed * smoothInputVectorMagnitude;
+    protected virtual void calculateFinalMoveDirection() {
 
-        // We have to assign individually in order to make our character jump properly because before it was overwriting Y value and that's why it was jerky now we are adding to Y value and it's working
-        finalMoveVector.x = finalVector.x;
-        finalMoveVector.z = finalVector.z;
+        // Update Smoothed Direction
+        smoothedMoveDirection = Vector3.Lerp(
+            smoothedMoveDirection,
+            desiredMoveDirection,
+            Time.deltaTime * firstPersonMovementConfig.smoothFinalDirectionSpeed
+        );
+        Debug.DrawRay(transform.position, smoothedMoveDirection, Color.yellow);
 
-        if (characterController.isGrounded) // Thanks to this check we are not applying extra y velocity when in air so jump will be consistent
-            finalMoveVector.y += finalVector.y; //so this makes our player go in forward dir using slope normal but when jumping this is making it go higher so this is weird
+        // Calculate Final Direction
+        Vector3 finalVector = smoothedMoveDirection * finalMoveSpeed;
+
+        // Assign Axis Movements
+        finalMoveDirection.x = finalVector.x;
+        finalMoveDirection.z = finalVector.z;
+        // Note: Below prevents extra y-velocity being added while in air.
+        if (characterController.isGrounded) finalMoveDirection.y += finalVector.y;
+    }
+
+    protected virtual void calculateVerticalMovement() {
+        if (characterController.isGrounded) { // Note: cc.isGrounded is more precise in this case?
+
+            // Update Air Time & Downward Force
+            firstPersonState.timeInAir = 0f;
+            finalMoveDirection.y = -firstPersonMovementConfig.stickToGroundForce;
+
+            // Handle Jump
+            if (moveInputState.isJumpClicked && !firstPersonState.isCrouching) {
+                finalMoveDirection.y += firstPersonMovementConfig.jumpSpeed;
+                firstPersonState.isTouchingGround = false;
+            }
+
+        } else {
+
+            // Apply Gravity
+            firstPersonState.timeInAir += Time.deltaTime;
+            finalMoveDirection += Physics.gravity * firstPersonMovementConfig.gravityMultiplier * Time.deltaTime;
+        }
+    }
+
+    protected virtual void movePlayer() {
+        characterController.Move(finalMoveDirection * Time.deltaTime);
     }
 
 
@@ -272,7 +309,7 @@ public class FirstPersonController : MonoBehaviour {
         float percent = 0f;
         float landAmount = 0f;
         float speed = 1f / firstPersonMovementConfig.landDuration;
-        Vector3 localPosition = transformYaw.localPosition;
+        Vector3 localPosition = transformCameraHolder.localPosition;
         float initialLandHeight = localPosition.y;
 
         // Calculate Land Amount
@@ -284,7 +321,7 @@ public class FirstPersonController : MonoBehaviour {
             float desiredY = firstPersonMovementConfig.landCurve.Evaluate(percent) * landAmount;
 
             localPosition.y = initialLandHeight + desiredY;
-            transformYaw.localPosition = localPosition;
+            transformCameraHolder.localPosition = localPosition;
 
             yield return null;
         }
@@ -331,7 +368,7 @@ public class FirstPersonController : MonoBehaviour {
         Vector3 currentCenter = characterController.center;
         float desiredHeight = isBeginningCrouch ? crouchHeight : baseHeight;
         Vector3 desiredCenter = isBeginningCrouch ? crouchCenter : baseCenter;
-        Vector3 cameraPosition = transformYaw.localPosition;
+        Vector3 cameraPosition = transformCameraHolder.localPosition;
         float cameraCurrentHeight = cameraPosition.y;
         float cameraDesiredHeight = isBeginningCrouch ? crouchCameraHeight : baseCameraHeight;
 
@@ -347,7 +384,7 @@ public class FirstPersonController : MonoBehaviour {
             characterController.center = Vector3.Lerp(currentCenter, desiredCenter, smoothPercent);
 
             cameraPosition.y = Mathf.Lerp(cameraCurrentHeight, cameraDesiredHeight, smoothPercent);
-            transformYaw.localPosition = cameraPosition;
+            transformCameraHolder.localPosition = cameraPosition;
 
             yield return null;
         }
@@ -419,8 +456,8 @@ public class FirstPersonController : MonoBehaviour {
      *       the forward direction and the move direction.
      */
     private bool isRunDirectionValid() {
-        Vector3 moveDirection = smoothFinalMoveDirection != Vector3.zero
-                                ? smoothFinalMoveDirection.normalized
+        Vector3 moveDirection = smoothedMoveDirection != Vector3.zero
+                                ? smoothedMoveDirection.normalized
                                 : Vector3.zero;
         float moveDirectionFactor = Vector3.Dot(transform.forward, moveDirection);
         return moveDirectionFactor > firstPersonMovementConfig.runDirectionThreshold;
@@ -433,7 +470,7 @@ public class FirstPersonController : MonoBehaviour {
         if (moveInputState.hasInput && firstPersonState.isTouchingGround  && !firstPersonState.isTouchingWall) {
             if (!firstPersonState.isAnimatingCrouch) { // we want to make our head bob only if we are moving and not during crouch routine
                 headBobManager.updateHeadBob(firstPersonState.isRunning, firstPersonState.isCrouching, moveInputState.inputVector);
-                transformYaw.localPosition = Vector3.Lerp(transformYaw.localPosition, (Vector3.up * headBobManager.currentBaseHeight) + headBobManager.currentPositionOffset, Time.deltaTime * firstPersonMovementConfig.smoothHeadBobSpeed);
+                transformCameraHolder.localPosition = Vector3.Lerp(transformCameraHolder.localPosition, (Vector3.up * headBobManager.currentBaseHeight) + headBobManager.currentPositionOffset, Time.deltaTime * firstPersonMovementConfig.smoothHeadBobSpeed);
             }
         } else { // if we are not moving or we are not grounded
             if (!headBobManager.isReset) {
@@ -441,49 +478,13 @@ public class FirstPersonController : MonoBehaviour {
             }
 
             if (!firstPersonState.isAnimatingCrouch) // we want to reset our head bob only if we are standing still and not during crouch routine
-                transformYaw.localPosition = Vector3.Lerp(transformYaw.localPosition, new Vector3(0f, headBobManager.currentBaseHeight, 0f), Time.deltaTime * firstPersonMovementConfig.smoothHeadBobSpeed);
+                transformCameraHolder.localPosition = Vector3.Lerp(transformCameraHolder.localPosition, new Vector3(0f, headBobManager.currentBaseHeight, 0f), Time.deltaTime * firstPersonMovementConfig.smoothHeadBobSpeed);
         }
 
         //transformCamera.localPosition = Vector3.Lerp(transformCamera.localPosition,headBobManager.FinalOffset,Time.deltaTime * firstPersonMovementConfig.smoothHeadBobSpeed);
     }
 
     protected virtual void updateCameraSway() {
-        cameraController.updateCameraSway(moveInputVector, moveInputState.inputVector.x);
-    }
-
-
-    /*--- Movement Methods ---*/
-
-    protected virtual void handleJump() {
-        if (moveInputState.isJumpClicked && !firstPersonState.isCrouching) {
-            finalMoveVector.y += firstPersonMovementConfig.jumpSpeed /* currentSpeed */; // we are adding because ex. when we are going on slope we want to keep Y value not overwriting it
-            //finalMoveVector.y = firstPersonMovementConfig.jumpSpeed /* currentSpeed */; // turns out that when adding to Y it is too much and it doesn't feel correct because jumping on slope is much faster and higher;
-
-            firstPersonState.wasTouchingGround = true;
-            firstPersonState.isTouchingGround = false;
-        }
-    }
-    protected virtual void applyGravity() {
-        if (characterController.isGrounded) { // if we would use our own firstPersonState.isTouchingGround it would not work that good, this one is more precise
-            firstPersonState.timeInAir = 0f;
-            finalMoveVector.y = -firstPersonMovementConfig.stickToGroundForce;
-
-            handleJump();
-
-        } else {
-            firstPersonState.timeInAir += Time.deltaTime;
-            finalMoveVector += Physics.gravity * firstPersonMovementConfig.gravityMultiplier * Time.deltaTime;
-        }
-    }
-
-    protected virtual void applyMovement() {
-        characterController.Move(finalMoveVector * Time.deltaTime);
-    }
-
-    protected virtual void rotateTowardsCamera() {
-        Quaternion currentRotation = transform.rotation;
-        Quaternion desiredRotation = transformYaw.rotation;
-
-        transform.rotation = Quaternion.Slerp(currentRotation, desiredRotation, Time.deltaTime * firstPersonMovementConfig.smoothRotateSpeed);
+        cameraController.updateCameraSway(moveInputState.inputVector, moveInputState.inputVector.x);
     }
 }
