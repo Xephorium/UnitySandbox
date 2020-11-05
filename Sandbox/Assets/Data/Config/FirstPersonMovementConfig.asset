@@ -119,8 +119,7 @@ MonoBehaviour:
     m_Bits: 256
   rayObstacleLength: 0.4
   rayObstacleSphereRadius: 0.2
-  smoothRotateSpeed: 10
-  smoothInputSpeed: 1
-  smoothVelocitySpeed: 10
-  smoothFinalDirectionSpeed: 10
+  smoothVelocitySpeed: 7
+  smoothFinalDirectionSpeed: 7
   smoothHeadBobSpeed: 5
+  smoothAerialDriftSpeed: 170

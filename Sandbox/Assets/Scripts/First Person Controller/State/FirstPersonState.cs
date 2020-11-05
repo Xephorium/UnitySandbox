@@ -15,6 +15,7 @@ public class FirstPersonState : ScriptableObject {
     [ShowIf("NeverShow")] public bool isTouchingWall;
     [ShowIf("NeverShow")] public bool isTouchingGround;
     [ShowIf("NeverShow")] public bool wasTouchingGround;
+    [ShowIf("NeverShow")] public bool isGroundBeneath;
 
     [ShowIf("NeverShow")] public float timeInAir;
 
@@ -35,6 +36,7 @@ public class FirstPersonState : ScriptableObject {
     	isTouchingWall = false;
     	isTouchingGround = false;
     	wasTouchingGround = false;
+    	isGroundBeneath = false;
 
     	timeInAir = 0f;
     }

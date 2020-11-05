@@ -35,8 +35,8 @@ public class FirstPersonMovementConfig : ScriptableObject {
     [Foldout("Wall Check")] public float rayObstacleLength = 0.4f;
     [Foldout("Wall Check")] public float rayObstacleSphereRadius = 0.2f;
 
-    [Foldout("Smoothing")] [Range(1f, 100f)]public float smoothInputSpeed = 1f;
     [Foldout("Smoothing")] [Range(1f, 100f)]public float smoothVelocitySpeed = 10f;
     [Foldout("Smoothing")] [Range(1f, 100f)]public float smoothFinalDirectionSpeed = 10f;
     [Foldout("Smoothing")] [Range(1f, 100f)]public float smoothHeadBobSpeed = 5f;
+    [Foldout("Smoothing")] [Range(1f, 1000f)]public float smoothAerialDriftSpeed = 1f;
 }

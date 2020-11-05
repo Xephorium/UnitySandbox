@@ -5,7 +5,8 @@ using NaughtyAttributes;
 /* TODO:
  *   - Identify & fix weird canRun() behavior after crouch.
  *   - Fix slope running.
- *   - Add player momentum.
+ *   - Smooth abrupt direction changes on land.
+ *   - Fix edge stickyness.
  */
 
 [RequireComponent(typeof(CharacterController))]
@@ -47,6 +48,9 @@ public class FirstPersonController : MonoBehaviour {
     [SerializeField][ShowIf("NeverShow")] private Vector3 desiredMoveDirection;
     [SerializeField][ShowIf("NeverShow")] private Vector3 smoothedMoveDirection;
     [SerializeField][ShowIf("NeverShow")] private Vector3 finalMoveDirection;
+
+    // Player Momentum Fields
+    [SerializeField][ShowIf("NeverShow")] private Vector3 momentumDirection;
 
 
     /*--- Lifecycle Methods ---*/
@@ -123,18 +127,26 @@ public class FirstPersonController : MonoBehaviour {
     /*--- Contact Check Methods ---*/
 
     protected virtual void updateGroundCheck() {
-
-        // Record Last State
         firstPersonState.wasTouchingGround = firstPersonState.isTouchingGround;
+        firstPersonState.isTouchingGround = characterController.isGrounded;
+        firstPersonState.isGroundBeneath = checkForGroundBeneath();
+    }
 
-    	// Setup Local Variables
-		Vector3 raycastStart = transform.position + characterController.center;
-		float sphereRadius = firstPersonMovementConfig.raySphereRadius;
-		Vector3 raycastDirection = Vector3.down;
-		float raycastLength = characterController.center.y + firstPersonMovementConfig.rayLength;
+    /* Note: This method is distinct from characterController.isGrounded in that
+     *       it detects floors a small distance beneath the player. This is very
+     *       useful when determining whether to adjust the player's movement
+     *       direction on a slope or to treat them as falling.
+     */
+    protected virtual bool checkForGroundBeneath() {
 
-		// Check for Ground
-        firstPersonState.isTouchingGround = Physics.SphereCast(
+        // Setup Local Variables
+        Vector3 raycastStart = transform.position + characterController.center;
+        float sphereRadius = firstPersonMovementConfig.raySphereRadius;
+        Vector3 raycastDirection = Vector3.down;
+        float raycastLength = characterController.center.y + firstPersonMovementConfig.rayLength;
+
+        // Check for Ground
+        return Physics.SphereCast(
             raycastStart,
             sphereRadius,
             raycastDirection,
@@ -205,13 +217,13 @@ public class FirstPersonController : MonoBehaviour {
         Vector3 horizontalDirection = transform.right * moveInputState.inputVector.x;
 
         Vector3 desiredDirection = verticalDirection + horizontalDirection;
-        Vector3 flattenedDirection = flattenVectorOnSlopes(desiredDirection);
+        if (firstPersonState.isTouchingGround) desiredDirection = flattenVectorOnSlopes(desiredDirection);
 
-        desiredMoveDirection = flattenedDirection;
+        desiredMoveDirection = desiredDirection;
     }
 
     protected virtual Vector3 flattenVectorOnSlopes(Vector3 vector) {
-        if (firstPersonState.isTouchingGround) vector = Vector3.ProjectOnPlane(vector, groundRaycastInfo.normal);
+        if (firstPersonState.isGroundBeneath) vector = Vector3.ProjectOnPlane(vector, groundRaycastInfo.normal);
 
         return vector;
     }
@@ -240,6 +252,9 @@ public class FirstPersonController : MonoBehaviour {
 
             finalMoveSpeed = smoothedMoveSpeed;
         }
+
+        // Account for Fall Momentum
+        if (!firstPersonState.isTouchingGround) finalMoveSpeed = smoothedMoveSpeed;
     }
 
     protected virtual void calculateFinalMoveDirection() {
@@ -252,30 +267,64 @@ public class FirstPersonController : MonoBehaviour {
         );
         Debug.DrawRay(transform.position, smoothedMoveDirection, Color.yellow);
 
+        float driftMaxSpeed = 5f;
+        float driftChangeRate = 0.1f;
+        float momentumFalloff = desiredMoveDirection == Vector3.zero ? 0.998f : 1f;
+
+        Vector3 desiredMomentum = momentumDirection + desiredMoveDirection * driftChangeRate;
+
+        // Calculate X Drift
+        float desiredComponentX = (desiredMoveDirection.normalized * driftMaxSpeed).x;
+        float lowerBound = -Mathf.Abs(desiredComponentX) < momentumDirection.x ? -Mathf.Abs(desiredComponentX) : momentumDirection.x;
+        float upperBound = Mathf.Abs(desiredComponentX) > momentumDirection.x ? Mathf.Abs(desiredComponentX) : momentumDirection.x;
+        float newMomentumX = Mathf.Clamp(desiredMomentum.x, lowerBound, upperBound);
+
+        // Calculate Z Drift
+        float desiredComponentZ = (desiredMoveDirection.normalized * driftMaxSpeed).z;
+        lowerBound = -Mathf.Abs(desiredComponentZ) < momentumDirection.z ? -Mathf.Abs(desiredComponentZ) : momentumDirection.z;
+        upperBound = Mathf.Abs(desiredComponentZ) > momentumDirection.z ? Mathf.Abs(desiredComponentZ) : momentumDirection.z;
+        float newMomentumZ = Mathf.Clamp(desiredMomentum.z, lowerBound, upperBound);
+
+        Vector3 newMomentum = new Vector3(newMomentumX, 0f, newMomentumZ);
+        Vector3 smoothedNewMomentum = Vector3.Lerp(
+            momentumDirection,
+            newMomentum,
+            Time.deltaTime * firstPersonMovementConfig.smoothAerialDriftSpeed
+        );
+
+        momentumDirection = smoothedNewMomentum * momentumFalloff;
+
         // Calculate Final Direction
-        Vector3 finalVector = smoothedMoveDirection * finalMoveSpeed;
+        Vector3 finalVector = (firstPersonState.isTouchingGround ? smoothedMoveDirection * finalMoveSpeed : momentumDirection);
 
         // Assign Axis Movements
         finalMoveDirection.x = finalVector.x;
         finalMoveDirection.z = finalVector.z;
         // Note: Below prevents extra y-velocity being added while in air.
-        if (characterController.isGrounded) finalMoveDirection.y += finalVector.y;
+        if (firstPersonState.isTouchingGround) finalMoveDirection.y += finalVector.y;
     }
 
     protected virtual void calculateVerticalMovement() {
-        if (characterController.isGrounded) { // Note: cc.isGrounded is more precise in this case?
+        if (firstPersonState.isTouchingGround) {
 
-            // Update Air Time & Downward Force
+            // Update State Variables
             firstPersonState.timeInAir = 0f;
+            momentumDirection = new Vector3(0f, 0f, 0f);
             finalMoveDirection.y = -firstPersonMovementConfig.stickToGroundForce;
 
             // Handle Jump
             if (moveInputState.isJumpClicked && !firstPersonState.isCrouching) {
                 finalMoveDirection.y += firstPersonMovementConfig.jumpSpeed;
                 firstPersonState.isTouchingGround = false;
+                momentumDirection = new Vector3(finalMoveDirection.x, 0f, finalMoveDirection.z);
             }
 
         } else {
+
+            // Set Momentum Direction
+            if (!firstPersonState.isTouchingGround && firstPersonState.wasTouchingGround) {
+                momentumDirection = new Vector3(finalMoveDirection.x, 0f, finalMoveDirection.z);
+            }
 
             // Apply Gravity
             firstPersonState.timeInAir += Time.deltaTime;
@@ -292,6 +341,7 @@ public class FirstPersonController : MonoBehaviour {
 
     protected virtual void updateLandState() {
         if (!firstPersonState.wasTouchingGround && firstPersonState.isTouchingGround) {
+
             beginLandAnimation();
         }
     }
