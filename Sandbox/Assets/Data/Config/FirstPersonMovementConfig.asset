@@ -122,4 +122,4 @@ MonoBehaviour:
   smoothVelocitySpeed: 7
   smoothFinalDirectionSpeed: 7
   smoothHeadBobSpeed: 5
-  smoothAerialDriftSpeed: 165
+  smoothAerialDriftSpeed: 400

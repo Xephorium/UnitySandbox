@@ -135,12 +135,12 @@ public class FirstPersonController : MonoBehaviour {
 
         // Set Move Direction to Momentum Vector
         // TODO - Move to somewhere more sensible
-        // if (!firstPersonState.wasTouchingGround && firstPersonState.isTouchingGround) {
-        //     smoothedMoveDirection = smoothedMoveDirection * Vector3.Dot(
-        //         momentumDirection.normalized * smoothedMoveDirection.magnitude,
-        //         smoothedMoveDirection
-        //     );
-        // }
+        if (!firstPersonState.wasTouchingGround && firstPersonState.isTouchingGround) {
+            smoothedMoveDirection = smoothedMoveDirection * Vector3.Dot(
+                momentumDirection.normalized * smoothedMoveDirection.magnitude,
+                smoothedMoveDirection
+            );
+        }
     }
 
     /* Note: This method is distinct from characterController.isGrounded in that
@@ -280,27 +280,31 @@ public class FirstPersonController : MonoBehaviour {
         float aerialDriftRateOfChange = 15f;
         float momentumFalloffConstant = 1.2f;
 
-        float driftMaxSpeed = aerialDriftMaxSpeed;
-        float driftChangeRate = aerialDriftRateOfChange * Time.deltaTime;
+        float momentumChange = aerialDriftRateOfChange * Time.deltaTime;
         float momentumFalloff = desiredMoveDirection == Vector3.zero
                               ? 1f - (momentumFalloffConstant * Time.deltaTime)
                               : 1f;
 
-        Vector3 desiredMomentum = momentumDirection + desiredMoveDirection * driftChangeRate;
+        Vector3 desiredMomentum = momentumDirection + desiredMoveDirection * momentumChange;
 
         // Calculate X Drift
-        float desiredComponentX = (desiredMoveDirection.normalized * driftMaxSpeed).x;
+        float desiredComponentX = (desiredMoveDirection.normalized * aerialDriftMaxSpeed).x;
         float lowerBound = -Mathf.Abs(desiredComponentX) < momentumDirection.x ? -Mathf.Abs(desiredComponentX) : momentumDirection.x;
         float upperBound = Mathf.Abs(desiredComponentX) > momentumDirection.x ? Mathf.Abs(desiredComponentX) : momentumDirection.x;
         float newMomentumX = Mathf.Clamp(desiredMomentum.x, lowerBound, upperBound);
 
         // Calculate Z Drift
-        float desiredComponentZ = (desiredMoveDirection.normalized * driftMaxSpeed).z;
+        float desiredComponentZ = (desiredMoveDirection.normalized * aerialDriftMaxSpeed).z;
         lowerBound = -Mathf.Abs(desiredComponentZ) < momentumDirection.z ? -Mathf.Abs(desiredComponentZ) : momentumDirection.z;
         upperBound = Mathf.Abs(desiredComponentZ) > momentumDirection.z ? Mathf.Abs(desiredComponentZ) : momentumDirection.z;
         float newMomentumZ = Mathf.Clamp(desiredMomentum.z, lowerBound, upperBound);
 
         Vector3 newMomentum = new Vector3(newMomentumX, 0f, newMomentumZ);
+        newMomentum = Vector3.Lerp(
+            momentumDirection,
+            newMomentum,
+            Time.deltaTime * firstPersonMovementConfig.smoothAerialDriftSpeed
+        );
 
         momentumDirection = newMomentum * momentumFalloff;
 
