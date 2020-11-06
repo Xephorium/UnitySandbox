@@ -275,9 +275,16 @@ public class FirstPersonController : MonoBehaviour {
         );
         Debug.DrawRay(transform.position, desiredMoveDirection, Color.yellow);
 
-        float driftMaxSpeed = 5f;
-        float driftChangeRate = 0.1f;
-        float momentumFalloff = desiredMoveDirection == Vector3.zero ? 0.998f : 1f;
+        // TODO - Extract to Constants
+        float aerialDriftMaxSpeed = 5f;
+        float aerialDriftRateOfChange = 15f;
+        float momentumFalloffConstant = 1.2f;
+
+        float driftMaxSpeed = aerialDriftMaxSpeed;
+        float driftChangeRate = aerialDriftRateOfChange * Time.deltaTime;
+        float momentumFalloff = desiredMoveDirection == Vector3.zero
+                              ? 1f - (momentumFalloffConstant * Time.deltaTime)
+                              : 1f;
 
         Vector3 desiredMomentum = momentumDirection + desiredMoveDirection * driftChangeRate;
 
@@ -294,13 +301,8 @@ public class FirstPersonController : MonoBehaviour {
         float newMomentumZ = Mathf.Clamp(desiredMomentum.z, lowerBound, upperBound);
 
         Vector3 newMomentum = new Vector3(newMomentumX, 0f, newMomentumZ);
-        Vector3 smoothedNewMomentum = Vector3.Lerp(
-            momentumDirection,
-            newMomentum,
-            Time.deltaTime * firstPersonMovementConfig.smoothAerialDriftSpeed
-        );
 
-        momentumDirection = smoothedNewMomentum * momentumFalloff;
+        momentumDirection = newMomentum * momentumFalloff;
 
         // Calculate Final Direction
         Vector3 finalVector = (firstPersonState.isTouchingGround ? smoothedMoveDirection * finalMoveSpeed : momentumDirection);
