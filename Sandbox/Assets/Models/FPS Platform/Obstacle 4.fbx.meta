@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: be830d8587371b04083b834090b13e62
+guid: f7f5c02c2b1e9ba4aa692fe4eea22e49
 ModelImporter:
   serializedVersion: 19301
   internalIDToNameTable: []
@@ -67,7 +67,7 @@ ModelImporter:
     normalCalculationMode: 4
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 1
-    normalSmoothingSource: 3
+    normalSmoothingSource: 0
   referencedClips: []
   importAnimation: 1
   humanDescription:

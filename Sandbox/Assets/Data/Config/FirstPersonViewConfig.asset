@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 330ae876ea1d1ee4ea07698bd1f6943d, type: 3}
   m_Name: FirstPersonViewConfig
   m_EditorClassIdentifier: 
-  defaultFOV: 80
+  defaultFOV: 70
   verticalAngleClamp: {x: -90, y: 90}
   lookSensitivityMouse: {x: 1.5, y: 1.5}
   lookSensitivityStick: {x: 1.52, y: 1.52}
@@ -93,7 +93,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   stickLookDriftThreshold: 0.05
-  runFOV: 90
+  runFOV: 80
   runCurve:
     serializedVersion: 2
     m_Curve:
@@ -120,7 +120,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   runTransitionDuration: 0.25
   runReturnTransitionDuration: 0.15
-  zoomFOV: 50
+  zoomFOV: 40
   zoomCurve:
     serializedVersion: 2
     m_Curve:
