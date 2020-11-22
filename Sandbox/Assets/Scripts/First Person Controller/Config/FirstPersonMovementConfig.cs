@@ -26,6 +26,8 @@ public class FirstPersonMovementConfig : ScriptableObject {
     [Foldout("Landing Animation")] public float landDuration = 0.3f;
     [Foldout("Landing Animation")] public AnimationCurve landCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
+    [Foldout("Ground Slope")] public float slideAngle = 45f;
+
     [Foldout("Ground Check")] public float stickToGroundForce = 1f;
     [Foldout("Ground Check")] public LayerMask groundLayer = ~0;
     [Foldout("Ground Check")] public float rayLength = 0.1f;

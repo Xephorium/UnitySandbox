@@ -259,12 +259,14 @@ public class FirstPersonController : MonoBehaviour {
         desiredMoveDirection = desiredDirection;
     }
 
-    // TODO - Account for Steep Angles & Edges
-    protected virtual Vector3 flattenVectorOnSlopes(Vector3 vector) {
-        if (firstPersonState.isGroundBeneath) vector = Vector3.ProjectOnPlane(vector, groundRaycastInfo.normal);
-
-        return vector;
-    }
+    // // Note: Far as I can tell, this block just breaks player movement on steep
+    // //       angles & edges. Gonna comment it out for now and plan to remove it
+    // //       during the final movement cleanup if I don't find its use.
+    // protected virtual Vector3 flattenVectorOnSlopes(Vector3 vector) {
+    //     if (firstPersonState.isGroundBeneath) // && firstPersonState.groundAngle > 45f)
+    //         vector = Vector3.ProjectOnPlane(vector, groundRaycastInfo.normal);
+    //     return vector;
+    // }
 
     protected virtual void calculateFinalMoveSpeed() {
 
@@ -305,7 +307,9 @@ public class FirstPersonController : MonoBehaviour {
         playerMomentum.updateMomentum(desiredMoveDirection, firstPersonMovementConfig);
 
         // Calculate Final Direction
-        Vector3 finalVector = (firstPersonState.isTouchingGround ? smoothedMoveDirection * finalMoveSpeed : playerMomentum.getDirection());
+        Vector3 finalVector = (firstPersonState.isTouchingGround || firstPersonState.isGroundBeneath
+            ? smoothedMoveDirection * finalMoveSpeed
+            : playerMomentum.getDirection());
 
         // Assign Axis Movements
         finalMoveDirection.x = finalVector.x;
