@@ -132,6 +132,9 @@ public class FirstPersonController : MonoBehaviour {
         firstPersonState.wasTouchingGround = firstPersonState.isTouchingGround;
         firstPersonState.isTouchingGround = characterController.isGrounded;
         firstPersonState.isGroundBeneath = checkForGroundBeneath();
+        firstPersonState.groundAngle = getGroundAngle();
+
+        Debug.Log(firstPersonState.groundAngle);
 
         // Set Move Direction to Momentum Vector
         // TODO - Move to somewhere more sensible
@@ -152,7 +155,7 @@ public class FirstPersonController : MonoBehaviour {
 
         // Setup Local Variables
         Vector3 raycastStart = transform.position + characterController.center;
-        float sphereRadius = firstPersonMovementConfig.raySphereRadius;
+        float sphereRadius = .33f; // TODO - Set To Player Width
         Vector3 raycastDirection = Vector3.down;
         float raycastLength = characterController.center.y + firstPersonMovementConfig.rayLength;
 
@@ -162,9 +165,33 @@ public class FirstPersonController : MonoBehaviour {
             sphereRadius,
             raycastDirection,
             out groundRaycastInfo,
-            raycastLength,
-            firstPersonMovementConfig.groundLayer
+            raycastLength
         );
+    }
+
+    /* Note: This method is distinct from checkForGroundBeneath in that it performs 
+     *       a SphereCast of great length to register hits arbitrarily far beneath
+     *       the player when standing on a sloped surface. The normal of this hit
+     *       is then used to calculate and return the ground angle.
+     */
+    protected virtual float getGroundAngle() {
+
+        // Setup Local Variables
+        Vector3 raycastStart = transform.position + characterController.center;
+        float sphereRadius = .33f; // TODO - Set To Player Width
+        Vector3 raycastDirection = Vector3.down;
+        float raycastLength = characterController.center.y + 2f; // TODO - Extract to Config Value.
+
+        // Perform Ground Sphere Cast
+        Physics.SphereCast(
+            raycastStart,
+            sphereRadius,
+            raycastDirection,
+            out groundRaycastInfo,
+            raycastLength
+        );
+
+        return (firstPersonState.isTouchingGround ? Vector3.Angle(groundRaycastInfo.normal, Vector3.up) : 0f);
     }
 
     /* Note: Performs three sphere casts from player's horizontal center in the forward
@@ -233,6 +260,7 @@ public class FirstPersonController : MonoBehaviour {
         desiredMoveDirection = desiredDirection;
     }
 
+    // TODO - Account for Steep Angles & Edges
     protected virtual Vector3 flattenVectorOnSlopes(Vector3 vector) {
         if (firstPersonState.isGroundBeneath) vector = Vector3.ProjectOnPlane(vector, groundRaycastInfo.normal);
 
