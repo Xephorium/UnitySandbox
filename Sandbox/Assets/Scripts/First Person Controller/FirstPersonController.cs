@@ -133,8 +133,6 @@ public class FirstPersonController : MonoBehaviour {
         firstPersonState.isGroundBeneath = checkForGroundBeneath();
         firstPersonState.groundAngle = getGroundAngle();
 
-        Debug.Log(firstPersonState.groundAngle);
-
         // Set Move Direction to Momentum Vector
         // TODO - Move to somewhere more sensible
         if (!firstPersonState.wasTouchingGround && firstPersonState.isTouchingGround) {
@@ -319,16 +317,16 @@ public class FirstPersonController : MonoBehaviour {
     }
 
     protected virtual void calculateVerticalMovement() {
-        //Debug.Log("Test 0");
         if (firstPersonState.isTouchingGround) {
 
             // Update State Variables
             firstPersonState.timeInAir = 0f;
-            //momentumDirection = new Vector3(0f, 0f, 0f); // TODO - Find a better place for this :#
+            playerMomentum.reset();
             finalMoveDirection.y = -firstPersonMovementConfig.stickToGroundForce;
 
             // Handle Jump
-            if (moveInputState.isJumpClicked && !firstPersonState.isCrouching) {
+            if (moveInputState.isJumpClicked && !firstPersonState.isCrouching
+                    && firstPersonState.groundAngle < firstPersonMovementConfig.slideAngle) {
                 finalMoveDirection.y += firstPersonMovementConfig.jumpSpeed;
                 firstPersonState.isTouchingGround = false;
                 playerMomentum.handleJump(finalMoveDirection);

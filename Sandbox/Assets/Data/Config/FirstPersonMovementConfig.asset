@@ -108,6 +108,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  slideAngle: 55
   stickToGroundForce: 4
   groundLayer:
     serializedVersion: 2
