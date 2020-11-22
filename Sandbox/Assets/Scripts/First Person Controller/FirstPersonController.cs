@@ -21,12 +21,13 @@ public class FirstPersonController : MonoBehaviour {
     [SerializeField] private MoveInputState moveInputState = null;
     [SerializeField] private FirstPersonState firstPersonState = null;
 
-    // Components & Subclasses
+    // Components & Helper Classes
     private CharacterController characterController;
     private Transform transformCameraHolder;
     private Transform transformCamera;
     private HeadBobManager headBobManager;
     private CameraController cameraController;
+    private PlayerMomentum playerMomentum;
 
     // Raycast & Routine Objects
     private RaycastHit groundRaycastInfo;
@@ -48,9 +49,6 @@ public class FirstPersonController : MonoBehaviour {
     [SerializeField][ShowIf("NeverShow")] private Vector3 desiredMoveDirection;
     [SerializeField][ShowIf("NeverShow")] private Vector3 smoothedMoveDirection;
     [SerializeField][ShowIf("NeverShow")] private Vector3 finalMoveDirection;
-
-    // Player Momentum Fields
-    [SerializeField][ShowIf("NeverShow")] private Vector3 momentumDirection;
 
 
     /*--- Lifecycle Methods ---*/
@@ -101,6 +99,7 @@ public class FirstPersonController : MonoBehaviour {
         	firstPersonMovementConfig.moveBackwardsSpeedPercent,
         	firstPersonMovementConfig.moveSideSpeedPercent
         );
+        playerMomentum = new PlayerMomentum();
     }
 
     protected virtual void initializeVariables() {
@@ -140,7 +139,7 @@ public class FirstPersonController : MonoBehaviour {
         // TODO - Move to somewhere more sensible
         if (!firstPersonState.wasTouchingGround && firstPersonState.isTouchingGround) {
             smoothedMoveDirection = smoothedMoveDirection * Vector3.Dot(
-                momentumDirection.normalized * smoothedMoveDirection.magnitude,
+                playerMomentum.getDirection().normalized * smoothedMoveDirection.magnitude,
                 smoothedMoveDirection
             );
         }
@@ -255,7 +254,7 @@ public class FirstPersonController : MonoBehaviour {
         Vector3 horizontalDirection = transform.right * moveInputState.inputVector.x;
 
         Vector3 desiredDirection = verticalDirection + horizontalDirection;
-        desiredDirection = flattenVectorOnSlopes(desiredDirection);
+        //desiredDirection = flattenVectorOnSlopes(desiredDirection);
 
         desiredMoveDirection = desiredDirection;
     }
@@ -303,41 +302,10 @@ public class FirstPersonController : MonoBehaviour {
         );
         Debug.DrawRay(transform.position, desiredMoveDirection, Color.yellow);
 
-        // TODO - Extract to Constants
-        float aerialDriftMaxSpeed = 5f;
-        float aerialDriftRateOfChange = 15f;
-        float momentumFalloffConstant = 1.2f;
-
-        float momentumChange = aerialDriftRateOfChange * Time.deltaTime;
-        float momentumFalloff = desiredMoveDirection == Vector3.zero
-                              ? 1f - (momentumFalloffConstant * Time.deltaTime)
-                              : 1f;
-
-        Vector3 desiredMomentum = momentumDirection + desiredMoveDirection * momentumChange;
-
-        // Calculate X Drift
-        float desiredComponentX = (desiredMoveDirection.normalized * aerialDriftMaxSpeed).x;
-        float lowerBound = -Mathf.Abs(desiredComponentX) < momentumDirection.x ? -Mathf.Abs(desiredComponentX) : momentumDirection.x;
-        float upperBound = Mathf.Abs(desiredComponentX) > momentumDirection.x ? Mathf.Abs(desiredComponentX) : momentumDirection.x;
-        float newMomentumX = Mathf.Clamp(desiredMomentum.x, lowerBound, upperBound);
-
-        // Calculate Z Drift
-        float desiredComponentZ = (desiredMoveDirection.normalized * aerialDriftMaxSpeed).z;
-        lowerBound = -Mathf.Abs(desiredComponentZ) < momentumDirection.z ? -Mathf.Abs(desiredComponentZ) : momentumDirection.z;
-        upperBound = Mathf.Abs(desiredComponentZ) > momentumDirection.z ? Mathf.Abs(desiredComponentZ) : momentumDirection.z;
-        float newMomentumZ = Mathf.Clamp(desiredMomentum.z, lowerBound, upperBound);
-
-        Vector3 newMomentum = new Vector3(newMomentumX, 0f, newMomentumZ);
-        newMomentum = Vector3.Lerp(
-            momentumDirection,
-            newMomentum,
-            Time.deltaTime * firstPersonMovementConfig.smoothAerialDriftSpeed
-        );
-
-        momentumDirection = newMomentum * momentumFalloff;
+        playerMomentum.updateMomentum(desiredMoveDirection, firstPersonMovementConfig);
 
         // Calculate Final Direction
-        Vector3 finalVector = (firstPersonState.isTouchingGround ? smoothedMoveDirection * finalMoveSpeed : momentumDirection);
+        Vector3 finalVector = (firstPersonState.isTouchingGround ? smoothedMoveDirection * finalMoveSpeed : playerMomentum.getDirection());
 
         // Assign Axis Movements
         finalMoveDirection.x = finalVector.x;
@@ -359,14 +327,14 @@ public class FirstPersonController : MonoBehaviour {
             if (moveInputState.isJumpClicked && !firstPersonState.isCrouching) {
                 finalMoveDirection.y += firstPersonMovementConfig.jumpSpeed;
                 firstPersonState.isTouchingGround = false;
-                momentumDirection = new Vector3(finalMoveDirection.x, 0f, finalMoveDirection.z);
+                playerMomentum.handleJump(finalMoveDirection);
             }
 
         } else {
 
             // Set Momentum Direction
             if (firstPersonState.wasTouchingGround) {
-                momentumDirection = new Vector3(finalMoveDirection.x, 0f, finalMoveDirection.z);
+                playerMomentum.handleJump(finalMoveDirection);
             }
 
             // Apply Gravity
