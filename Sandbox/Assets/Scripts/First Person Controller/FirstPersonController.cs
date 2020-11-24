@@ -43,6 +43,7 @@ public class FirstPersonController : MonoBehaviour {
     [SerializeField][ShowIf("NeverShow")] private float crouchCameraHeight;
 
     // Player Movement Fields
+    [SerializeField][ShowIf("NeverShow")] private float initialStepOffset;
     [SerializeField][ShowIf("NeverShow")] private float desiredMoveSpeed;
     [SerializeField][ShowIf("NeverShow")] private float smoothedMoveSpeed;
     [SerializeField][ShowIf("NeverShow")] private float finalMoveSpeed;
@@ -59,13 +60,15 @@ public class FirstPersonController : MonoBehaviour {
     }
 
     protected virtual void Update() {
-        updateComponents();
 
         if (characterController) {
 
             // Update Contact Checks
             updateGroundCheck();
             updateWallCheck();
+
+            // Update Player Rig Components
+            updateComponents();
 
             updateLandState(); // TODO - Refactor in some sensible way
 
@@ -113,15 +116,9 @@ public class FirstPersonController : MonoBehaviour {
         baseCameraHeight = transformCameraHolder.localPosition.y;
         crouchCameraHeight = baseCameraHeight - (baseHeight - crouchHeight);
 
+        initialStepOffset = characterController.stepOffset;
         characterController.center = baseCenter;
         headBobManager.currentBaseHeight = baseCameraHeight;
-    }
-
-
-    /*--- Component Update Method ---*/
-
-    protected virtual void updateComponents() {
-        if (transformCameraHolder != null) transform.rotation = transformCameraHolder.rotation;
     }
 
 
@@ -234,6 +231,26 @@ public class FirstPersonController : MonoBehaviour {
     	}
 
     	firstPersonState.isTouchingWall = wallCheck;
+    }
+
+
+    /*--- Component Update Method ---*/
+
+    protected virtual void updateComponents() {
+        if (transformCameraHolder != null) transform.rotation = transformCameraHolder.rotation;
+
+        // Note: This block is an easy fix for a bug in Unity's Character Controller that causes
+        //       the player's vertical position to stutter when they jump toward a wall that's
+        //       just shorter than their jump height. You don't want to know how long it took me
+        //       to track this little monster down.
+        if (firstPersonState.isTouchingGround) {
+            characterController.slopeLimit = firstPersonMovementConfig.slideAngle;
+            characterController.stepOffset = initialStepOffset;
+        } else {
+            characterController.slopeLimit = 90f;
+            characterController.stepOffset = 0f;
+        }
+
     }
 
 
