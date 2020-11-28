@@ -3,3 +3,69 @@
 // FPS Movement Notes //
 ////////////////////////
 
+High-Level Movement Pseudocode:
+
+		// Calculate Movement Speed & Direction
+
+		if (grounded) {
+
+			// Reset Momentum
+
+			// Detect & Handle Landing
+			// Detect & Handle Run
+			// Detect & Handle Crouch
+
+			// Calculate Input Movement in FirstPersonController (InputMovementCalculator?)
+			//////////////////////////////////////////////
+
+			//////////////////////////////////////////////
+			// Move based on InputMovement
+
+		} else {
+
+			// Reset Landing
+			// Reset Run
+			// Reset Crouch
+
+			// Update Momentum Movement in PlayerMomentum (MomentumMovementCalculator?):
+			///////////////////////////////////////////////////////////
+			if (sliding) {
+
+				// Update Momentum Based on Ground Slope Direction
+			
+			} else if () {
+
+				// Update Momentum Based on Fall & User Input
+
+			}
+			///////////////////////////////////////////////////////////
+			// Move based on MomentumMovement
+
+		}
+
+Movement States:
+- Grounded (Greater of Base Movement and Momentum, where Momentum rapidly falls off)
+  > Walking
+  > Running
+  > Crouched
+- Aerial (No Base Movement)
+  > Sliding: Ground Below && Angle > Slide Angle (Pure Momentum)
+  > Falling: Not Touching Ground && Not Above Ground (Momentum altered by aerial drift)
+
+Momentum
+- Active when: in air or above slope
+- Deactivate & reset when: touching ground & not above slope
+- Horizontal Component:
+  > Starts as jump direction.
+  > If above slope, automatically calc.
+  > If no input, falls off over time.
+  > Can be only decreased if above max.
+  > If below max, player-controlled.
+- Vertical Component:
+  > Unless jumping, clamp upward at most
+     recent upward speed (accounts for head
+     bonk)
+  > If in air & not above slope, acc down
+  > Else if above slope, calculate theoretical next fall vector,
+     set direction to slope normal preserving magnitude, and slide
+  > Else if touching ground & not above slope,
