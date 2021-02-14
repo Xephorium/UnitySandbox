@@ -70,22 +70,26 @@ public class FirstPersonController : MonoBehaviour {
             // Update Player Rig Components
             updateComponents();
 
-            updateLandState(); // TODO - Refactor in some sensible way
+            // Update Animation States
+            updateLandAnimation();
+            updateCrouchAnimation();
+            updateRunAnimation();
+            updateHeadBobAnimation();
+            updateSwayAnimation();
 
-            // Update Player Movement
-            calculateDesiredMoveSpeed();
-            calculateDesiredMoveDirection();
+            // Read Inputs
+            calculateInputMoveSpeed();
+            calculateInputMoveDirection();
+
+            // Perform Movement Calculations
             calculateFinalMoveSpeed();
             calculateFinalMoveDirection();
             calculateVerticalMovement();
-            movePlayer();
 
-            // Update Player Animation
-            //updateLandState();
-            updateCrouchState();
-            updateRunState();
-            updateHeadBob();
-            updateCameraSway();
+            // Move Player
+            // TODO - Input vs Momentum
+            if (true) movePlayer(finalMoveDirection * Time.deltaTime);
+            //else movePlayer(finalMoveDirection * Time.deltaTime);
         }
     }
 
@@ -256,15 +260,13 @@ public class FirstPersonController : MonoBehaviour {
 
     /*--- Movement Calculation Methods ---*/
 
-    protected virtual void calculateDesiredMoveSpeed() {
+    protected virtual void calculateInputMoveSpeed() {
         desiredMoveSpeed = firstPersonState.isRunning ? firstPersonMovementConfig.runSpeed : firstPersonMovementConfig.walkSpeed;
         desiredMoveSpeed = firstPersonState.isCrouching ? firstPersonMovementConfig.crouchSpeed : desiredMoveSpeed;
         desiredMoveSpeed = !moveInputState.hasInput ? 0f : desiredMoveSpeed;
-        desiredMoveSpeed = moveInputState.inputVector.y == -1 ? desiredMoveSpeed * firstPersonMovementConfig.moveBackwardsSpeedPercent : desiredMoveSpeed;
-        desiredMoveSpeed = moveInputState.inputVector.x != 0 && moveInputState.inputVector.y ==  0 ? desiredMoveSpeed * firstPersonMovementConfig.moveSideSpeedPercent :  desiredMoveSpeed;
     }
 
-    protected virtual void calculateDesiredMoveDirection() {
+    protected virtual void calculateInputMoveDirection() {
         Vector3 verticalDirection = transform.forward * moveInputState.inputVector.y;
         Vector3 horizontalDirection = transform.right * moveInputState.inputVector.x;
 
@@ -362,14 +364,14 @@ public class FirstPersonController : MonoBehaviour {
         }
     }
 
-    protected virtual void movePlayer() {
-        characterController.Move(finalMoveDirection * Time.deltaTime);
+    protected virtual void movePlayer(Vector3 movement) {
+        characterController.Move(movement);
     }
 
 
     /*--- Land Methods ---*/
 
-    protected virtual void updateLandState() {
+    protected virtual void updateLandAnimation() {
         if (!firstPersonState.wasTouchingGround && firstPersonState.isTouchingGround) {
             beginLandAnimation();
         }
@@ -409,7 +411,7 @@ public class FirstPersonController : MonoBehaviour {
 
     /*--- Crouch Methods ---*/
 
-    protected virtual void updateCrouchState() {
+    protected virtual void updateCrouchAnimation() {
     	canStand();
 
         // Begin Crouch
@@ -494,7 +496,7 @@ public class FirstPersonController : MonoBehaviour {
 
     /*--- Run Methods ---*/
 
-    protected virtual void updateRunState() {
+    protected virtual void updateRunAnimation() {
         if (!firstPersonState.isRunning && moveInputState.isRunClicked && canBeginRun()) {
 
             // Begin Running
@@ -545,7 +547,7 @@ public class FirstPersonController : MonoBehaviour {
 
     /*--- Head Bob & Sway Methods ---*/
 
-    protected virtual void updateHeadBob() {
+    protected virtual void updateHeadBobAnimation() {
         if (moveInputState.hasInput && firstPersonState.isTouchingGround  && !firstPersonState.isTouchingWall) {
             if (!firstPersonState.isAnimatingCrouch) { // we want to make our head bob only if we are moving and not during crouch routine
                 headBobManager.updateHeadBob(firstPersonState.isRunning, firstPersonState.isCrouching, moveInputState.inputVector);
@@ -563,7 +565,7 @@ public class FirstPersonController : MonoBehaviour {
         //transformCamera.localPosition = Vector3.Lerp(transformCamera.localPosition,headBobManager.FinalOffset,Time.deltaTime * firstPersonMovementConfig.smoothHeadBobSpeed);
     }
 
-    protected virtual void updateCameraSway() {
+    protected virtual void updateSwayAnimation() {
         cameraController.updateCameraSway(moveInputState.inputVector, moveInputState.inputVector.x);
     }
 }

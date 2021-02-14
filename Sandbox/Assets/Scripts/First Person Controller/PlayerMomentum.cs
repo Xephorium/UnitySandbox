@@ -31,7 +31,7 @@ public class PlayerMomentum {
 	}
 
 	public void handleJump(Vector3 jumpVector) {
-		direction = new Vector3(jumpVector.x, 0f, jumpVector.z);
+		direction = new Vector3(jumpVector.x, jumpVector.y, jumpVector.z);
 	}
 
 	public void updateMomentum(Vector3 desiredMoveDirection, FirstPersonMovementConfig config) {
