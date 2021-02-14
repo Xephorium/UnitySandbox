@@ -4,7 +4,7 @@
 The first step on two brothers' journey toward building our own universe.
 
 ### Project Archival
-As of February 2021, Sandbox has been ported to Unreal Engine 4. Its development will continue in our [new repository]() with the more mature toolset. This version of the project will remain as an archive of the lessons we learned while building in Unity.
+As of February 2021, Sandbox has been ported to Unreal Engine 4. Its development will continue in our [new repository](https://github.com/Xephorium/Sandbox) with the more mature toolset. This version of the project will remain as an archive of the lessons we learned while building in Unity.
 
 ### Resources & Credits
 - [dbrizov](https://github.com/dbrizov)'s [NaughtyAttributes](https://github.com/dbrizov/NaughtyAttributes), an extension library for Unity's inspector.
